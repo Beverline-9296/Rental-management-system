@@ -4,29 +4,29 @@
 @section('header', 'My Properties')
 
 @section('content')
-<div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-6">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Properties Management</h1>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Properties Management</h1>
                     <p class="text-gray-600 mt-1">Manage your rental properties</p>
                 </div>
                 <a href="{{ route('landlord.properties.create') }}" 
-                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-md font-medium transition duration-200 flex items-center text-sm">
-                    <i class="fas fa-plus mr-2"></i>
-                    Add Property
+                   class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition duration-200 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-plus mr-2"></i>Add Property
                 </a>
             </div>
         </div>
-    </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Success Message -->
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                {{ session('success') }}
+            <div class="glass-card bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl mb-6 shadow-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                    <span>{{ session('success') }}</span>
+                </div>
             </div>
         @endif
 

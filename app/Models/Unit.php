@@ -56,6 +56,14 @@ class Unit extends Model
     }
 
     /**
+     * Get all payments for this unit
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
      * Get the current tenant assignment.
      */
     public function currentTenant()

@@ -11,14 +11,38 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Google Fonts - Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            @apply bg-gray-50;
         }
+        /* Gradient background used across dashboard */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Frosted glass card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out; }
+        .animate-slideInLeft { animation: slideInLeft 0.6s ease-out; }
+
         .sidebar {
             min-height: calc(100vh - 64px);
         }
@@ -26,142 +50,39 @@
     
     @stack('styles')
 </head>
-<body class="bg-gray-50">
-    <!-- Top Navigation -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('landlord.dashboard') }}" class="text-xl font-bold text-indigo-600">
-                            Astra Spaces
-                        </a>
-                    </div>
-                    <div class="hidden md:flex space-x-6">
-                        <a href="{{ route('landlord.dashboard') }}" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Home</a>
-                        <a href="#" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">About</a>
-                        <a href="#" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Contact</a>
-                        <a href="{{ route('landlord.properties.index') }}" class="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium">Properties</a>
-                    </div>
-                </div>
-                
-                <!-- Right Side Of Navbar -->
-                <div class="hidden sm:ml-6 sm:flex sm:items-center">
-                    <!-- Profile dropdown -->
-                    <div class="ml-3 relative">
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-700 mr-4">{{ Auth::user()->name }}</span>
-                            <div class="relative">
-                                <button type="button" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu" aria-expanded="false" aria-haspopup="true">
-                                    <span class="sr-only">Open user menu</span>
-                                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                </button>
-                            </div>
-                            
-                            <!-- Dropdown menu -->
-                            <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu" style="z-index: 1;">
-                                <div class="py-1" role="none">
-                                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                        <i class="fas fa-user-circle mr-2"></i> Profile
-                                    </a>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                            <i class="fas fa-sign-out-alt mr-2"></i> Sign out
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="-mr-2 flex items-center sm:hidden">
-                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div class="sm:hidden hidden" id="mobile-menu">
-            <div class="pt-2 pb-3 space-y-1">
-                <a href="{{ route('landlord.dashboard') }}" class="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                    Dashboard
-                </a>
-                <a href="{{ route('landlord.properties.index') }}" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                    Properties
-                </a>
-                <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                    Tenants
-                </a>
-                <a href="#" class="border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 block pl-3 pr-4 py-2 border-l-4 text-base font-medium">
-                    Payments
-                </a>
-            </div>
-            <div class="pt-4 pb-3 border-t border-gray-200">
-                <div class="flex items-center px-4">
-                    <div class="flex-shrink-0">
-                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    </div>
-                    <div class="ml-3">
-                        <div class="text-base font-medium text-gray-800">{{ Auth::user()->name }}</div>
-                        <div class="text-sm font-medium text-gray-500">{{ Auth::user()->email }}</div>
-                    </div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
-                        <i class="fas fa-user-circle mr-2"></i> Your Profile
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
-                            <i class="fas fa-sign-out-alt mr-2"></i> Sign out
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
 
     <div class="flex">
         <!-- Sidebar -->
         <div class="hidden md:flex md:flex-shrink-0">
-            <div class="flex flex-col w-64 bg-white border-r border-gray-200 sidebar">
+            <div class="flex flex-col w-64 gradient-bg text-white shadow-2xl sidebar">
                 <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
                     <div class="flex items-center flex-shrink-0 px-4">
-                        <h2 class="text-lg font-semibold text-gray-900">Landlord Panel</h2>
+                        <h2 class="text-lg font-semibold text-white">Landlord Panel</h2>
                     </div>
                     <div class="mt-5 flex-1 flex flex-col">
                         <nav class="flex-1 px-2 space-y-1">
-                            <a href="{{ route('landlord.dashboard') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                                <i class="fas fa-tachometer-alt mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.dashboard') ? 'text-indigo-500' : '' }}"></i>
+                            <a href="{{ route('landlord.dashboard') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.dashboard') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
+                                <i class="fas fa-tachometer-alt mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.dashboard') ? 'text-white' : '' }}"></i>
                                 Dashboard
                             </a>
-                            <a href="{{ route('landlord.properties.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.properties.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                                <i class="fas fa-building mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.properties.*') ? 'text-indigo-500' : '' }}"></i>
+                            <a href="{{ route('landlord.properties.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.properties.*') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
+                                <i class="fas fa-building mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.properties.*') ? 'text-white' : '' }}"></i>
                                 Properties
                             </a>
-                            <a href="{{ route('landlord.tenants.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.tenants.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                                <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.tenants.*') ? 'text-indigo-500' : '' }}"></i>
+                            <a href="{{ route('landlord.tenants.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('landlord.tenants.*') ? 'bg-indigo-600 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }}">
+                                <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.tenants.*') ? 'text-white' : '' }}"></i>
                                 Tenants
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
                                 <i class="fas fa-money-bill-wave mr-3 text-gray-400 group-hover:text-gray-500"></i>
                                 Payments
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
                                 <i class="fas fa-file-invoice-dollar mr-3 text-gray-400 group-hover:text-gray-500"></i>
                                 Invoices
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
                                 <i class="fas fa-chart-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
                                 Reports
                             </a>
@@ -209,18 +130,20 @@
             <!-- Page content -->
             <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 @if(session('success'))
-                    <div class="rounded-md bg-green-50 p-4 mb-6">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="h-5 w-5 text-green-400 fas fa-check-circle"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-green-800">
-                                    {{ session('success') }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            if (window.Swal) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success',
+                                    text: @json(session('success')),
+                                    confirmButtonColor: '#3085d6',
+                                });
+                            } else {
+                                console.warn('SweetAlert2 not loaded – success popup skipped');
+                            }
+                        });
+                    </script>
                 @endif
 
                 @if($errors->any())

@@ -94,7 +94,7 @@
                     <div class="flex items-center space-x-8">
                         <div class="flex items-center">
                             <i class="fas fa-building text-3xl text-blue-600 mr-3"></i>
-                            <h1 class="text-2xl font-bold text-gray-900">Astra Spaces</h1>
+                            <h1 class="text-2xl font-bold text-gray-900">Rental</h1>
                         </div>
                         <nav class="hidden md:flex items-center space-x-6">
                             <a href="{{ url('/') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>

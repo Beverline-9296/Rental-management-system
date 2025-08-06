@@ -49,7 +49,7 @@
                         <i class="fas fa-home w-5"></i>
                         <span class="font-medium">Unit Details</span>
                     </a>
-                    <a href="{{ route('tenant.messages') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
                     </a>
@@ -167,7 +167,7 @@
                         </div>
                     </div>
 
-                    <!-- Lease Information Card -->
+                    <!-- Lease Information Card 
                     <div class="glass-card rounded-2xl shadow-2xl p-8 mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
                         <div class="flex items-center mb-6">
                             <i class="fas fa-file-contract text-3xl text-purple-600 mr-4"></i>
@@ -211,7 +211,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>-->
 
                     <!-- Quick Actions -->
                     <div class="glass-card rounded-2xl shadow-2xl p-8 animate-fadeInUp" style="animation-delay: 0.4s;">
@@ -229,7 +229,7 @@
                                 <i class="fas fa-phone mr-3"></i>
                                 <span class="font-medium">Contact Landlord</span>
                             </a>
-                            <a href="{{ route('tenant.messages') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition duration-200 shadow-lg">
+                            <a href="{{ route('tenant.messages.index') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition duration-200 shadow-lg">
                                 <i class="fas fa-envelope mr-3"></i>
                                 <span class="font-medium">Messages</span>
                             </a>

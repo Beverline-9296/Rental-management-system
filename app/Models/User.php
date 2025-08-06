@@ -28,6 +28,9 @@ class User extends Authenticatable
         'emergency_contact',
         'emergency_phone',
         'profile_photo_path',
+        'date_of_birth',
+        'occupation',
+        'bio',
     ];
 
     /**
@@ -101,6 +104,70 @@ class User extends Authenticatable
         return $this->belongsToMany(Unit::class, 'tenant_assignments', 'tenant_id', 'unit_id')
             ->withPivot(['start_date', 'end_date', 'monthly_rent', 'status'])
             ->withTimestamps();
+    }
+
+    /**
+     * Get messages sent by this user
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /**
+     * Get messages received by this user
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    /**
+     * Get all payments made by this tenant
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'tenant_id');
+    }
+
+    /**
+     * Get the total amount paid by this tenant
+     */
+    public function getTotalPaid()
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Get the total rent due for this tenant (all active assignments)
+     */
+    public function getTotalDue()
+    {
+        $totalDue = 0;
+        $today = now();
+        foreach ($this->tenantAssignments()->active()->get() as $assignment) {
+            $start = $assignment->start_date;
+            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date : $today;
+            $months = $start ? $start->diffInMonths($end) + 1 : 0;
+            $totalDue += $months * $assignment->monthly_rent;
+        }
+        return $totalDue;
+    }
+
+    /**
+     * Get arrears for this tenant
+     */
+    public function getArrears()
+    {
+        return max(0, $this->getTotalDue() - $this->getTotalPaid());
+    }
+
+    /**
+     * Get unread messages count
+     */
+    public function getUnreadMessagesCountAttribute(): int
+    {
+        return $this->receivedMessages()->where('is_read', false)->count();
     }
 
 

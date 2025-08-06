@@ -153,7 +153,7 @@ class TenantController extends Controller
     {
         $this->authorize('view', $tenant);
         
-        $tenant->load(['tenantAssignments.unit.property', 'payments']);
+        $tenant->load(['tenantAssignments.unit.property']);
         
         return view('landlord.tenants.show', compact('tenant'));
     }

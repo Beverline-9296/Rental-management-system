@@ -49,7 +49,7 @@
                         <i class="fas fa-home w-5"></i>
                         <span>Unit Details</span>
                     </a>
-                    <a href="{{ route('tenant.messages') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
                     </a>

@@ -41,21 +41,29 @@
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-credit-card w-5"></i>
-                        <span>My Payments</span>
-                    </a>
                     <a href="{{ route('tenant.unit-details') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-home w-5"></i>
                         <span>Unit Details</span>
                     </a>
-                    <a href="{{ route('tenant.messages') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.maintenance.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-tools w-5"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <a href="{{ route('tenant.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
+                    </a>
+                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>My Payments</span>
                     </a>
                     <a href="{{ route('tenant.contact-landlord') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-phone w-5"></i>
                         <span>Contact Landlord</span>
+                    </a>
+                    <a href="{{ route('tenant.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-user-cog w-5"></i>
+                        <span>Profile</span>
                     </a>
                     <a href="{{ route('tenant.settings') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-cog w-5"></i>

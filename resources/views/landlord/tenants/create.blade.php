@@ -97,16 +97,19 @@
                     <div>
                         <label for="unit_id" class="block text-sm font-medium text-gray-700">Assign to Unit *</label>
                         <select name="unit_id" id="unit_id" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="">Select a unit</option>
-                            @forelse($availableUnits as $unit)
-                                <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                    {{ $unit->property->name }} - {{ $unit->unit_number }} ({{ $unit->unit_type }})
-                                </option>
-                            @empty
-                                <option value="" disabled>No available units found</option>
-                            @endforelse
-                        </select>
+    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+    <option value="">Select a unit</option>
+    @forelse($availableUnits as $unit)
+        <option value="{{ $unit->id }}" 
+            data-rent="{{ $unit->rent_amount ?? ($unit->property->rent_amount ?? '') }}" 
+            data-deposit="{{ $unit->deposit_amount ?? ($unit->property->deposit_amount ?? $unit->rent_amount ?? $unit->property->rent_amount ?? '') }}"
+            {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+            {{ $unit->property->name }} - {{ $unit->unit_number }} ({{ $unit->unit_type }})
+        </option>
+    @empty
+        <option value="" disabled>No available units found</option>
+    @endforelse
+</select>
                         @error('unit_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -185,12 +188,25 @@
             // In a real app, you would fetch this data via AJAX
             // For now, we'll use the values from the selected option
             const selectedOption = this.options[this.selectedIndex];
-            if (selectedOption.dataset.rent) {
-                document.getElementById('monthly_rent').value = selectedOption.dataset.rent;
-                document.getElementById('deposit_amount').value = selectedOption.dataset.deposit || selectedOption.dataset.rent;
-            }
+            document.getElementById('monthly_rent').value = selectedOption.getAttribute('data-rent') || '';
+            document.getElementById('deposit_amount').value = selectedOption.getAttribute('data-deposit') || '';
+
         }
     });
+</script>
+@endpush
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const unitSelect = document.getElementById('unit_id');
+    const rentInput = document.getElementById('monthly_rent');
+    const depositInput = document.getElementById('deposit_amount');
+    unitSelect.addEventListener('change', function () {
+        const selected = unitSelect.options[unitSelect.selectedIndex];
+        rentInput.value = selected.getAttribute('data-rent') || '';
+        depositInput.value = selected.getAttribute('data-deposit') || '';
+    });
+});
 </script>
 @endpush
 @endsection

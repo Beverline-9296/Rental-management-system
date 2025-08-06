@@ -49,13 +49,21 @@
                         <i class="fas fa-users w-5"></i>
                         <span>Tenants</span>
                     </a>
-                    <a href="{{ route('landlord.messages') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('landlord.maintenance.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-tools w-5"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <a href="{{ route('landlord.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
                     </a>
-                    <a href="{{ route('landlord.payments') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('landlord.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-credit-card w-5"></i>
                         <span>Payments</span>
+                    </a>
+                    <a href="{{ route('landlord.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-user-cog w-5"></i>
+                        <span>Profile</span>
                     </a>
                     <a href="{{ route('landlord.settings') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-cog w-5"></i>
@@ -224,7 +232,7 @@
                                     <i class="fas fa-user-plus mr-2"></i>
                                     ADD TENANT
                                 </button>
-                                <button class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-200">
+                                <button onclick="window.location='{{ route('landlord.payments.create') }}'" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition duration-200">
                                     <i class="fas fa-money-bill mr-2"></i>
                                     RECORD PAYMENT
                                 </button>

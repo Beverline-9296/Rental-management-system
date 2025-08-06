@@ -368,111 +368,81 @@
 </div>
 
 <script>
-// Add form submission handler
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('JavaScript loaded successfully');
-    const form = document.getElementById('property-edit-form');
-    console.log('Form found:', form ? 'Yes' : 'No');
-    
-    // Refresh CSRF token every 30 minutes to prevent 419 errors
-    setInterval(function() {
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Property-edit JS initialised');
+
+    const form           = document.getElementById('property-edit-form');
+    const addUnitBtn     = document.getElementById('add-unit');
+    const unitsContainer = document.getElementById('units-container');
+    const unitTemplate   = document.getElementById('unit-template');
+
+    if (!form) return; // safety
+
+    /* ---------------- CSRF token refresh ---------------- */
+    setInterval(() => {
         fetch('/csrf-token')
-            .then(response => response.json())
-            .then(data => {
-                const tokenInput = document.querySelector('input[name="_token"]');
-                if (tokenInput && data.token) {
-                    tokenInput.value = data.token;
-                    console.log('CSRF token refreshed');
-                }
+            .then(r => r.json())
+            .then(({ token }) => {
+                const tokenInput = form.querySelector('input[name="_token"]');
+                if (tokenInput) tokenInput.value = token;
             })
-            .catch(error => console.log('Token refresh failed:', error));
-    }, 30 * 60 * 1000); // 30 minutes
-    
-    // Add form validation
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            console.log('Form submission started');
-            
-            // Check if we have at least one unit
-            const unitEntries = document.querySelectorAll('.unit-entry:not(#unit-template)');
-            console.log('Found unit entries:', unitEntries.length);
-            
-            if (unitEntries.length === 0) {
-                e.preventDefault();
-                alert('Please add at least one unit to the property.');
-                return false;
-            }
-            
-            console.log('Form validation passed, submitting...');
-            return true;
-        });
-    }
-});
+            .catch(err => console.error('CSRF refresh failed', err));
+    }, 30 * 60 * 1000);
 
-    // Add new unit row
-    const addUnitBtn = document.getElementById('add-unit');
-    if (addUnitBtn) {
-        addUnitBtn.addEventListener('click', addNewUnit);
-    }
-
-    // Initialize unit index
-    let unitIndex = {{ count($property->units) }};
-    
-    // Add event delegation for remove buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-unit')) {
+    /* ---------------- form validation ---------------- */
+    form.addEventListener('submit', function(e) {
+        const unitEntries = unitsContainer.querySelectorAll('.unit-entry:not(#unit-template)');
+        
+        // Only prevent default if validation fails
+        if (unitEntries.length === 0) {
             e.preventDefault();
-            const unitEntry = e.target.closest('.unit-entry');
-            if (unitEntry && unitEntry.id !== 'unit-template') {
-                // If it's an existing unit, add a hidden input to mark it for deletion
-                const unitId = unitEntry.querySelector('input[name$="[id]"]');
-                if (unitId && unitId.value) {
-                    const deleteInput = document.createElement('input');
-                    deleteInput.type = 'hidden';
-                    deleteInput.name = `units[${unitId.value}][_delete]`;
-                    deleteInput.value = '1';
-                    form.appendChild(deleteInput);
-                }
-                unitEntry.remove();
-            }
+            alert('Please add at least one unit to the property.');
+            return false;
         }
+        
+        // If validation passes, the form will submit normally
+        return true;
     });
 
-    // Function to add a new unit
-    function addNewUnit() {
-        const container = document.getElementById('units-container');
-        const template = document.getElementById('unit-template');
-        
-        if (!container || !template) return;
-        
-        // Create a new unit entry
-        const newUnitDiv = document.createElement('div');
-        newUnitDiv.className = 'unit-entry bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200';
-        
-        // Clone the template content and update indices
-        const templateContent = template.innerHTML.replace(/__INDEX__/g, unitIndex);
-        newUnitDiv.innerHTML = templateContent;
-        
-        // Add the new unit to the container
-        container.insertBefore(newUnitDiv, template);
-        
-        // Increment the index for the next unit
-        unitIndex++;
-        
-        console.log('Added new unit, current index:', unitIndex);
+    /* ---------------- add unit button ---------------- */
+    let unitIndex = {{ count($property->units) }};
+    if (addUnitBtn && unitTemplate) {
+        addUnitBtn.addEventListener('click', () => {
+            const newUnit = document.createElement('div');
+            newUnit.className = 'unit-entry bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200';
+            newUnit.innerHTML = unitTemplate.innerHTML.replace(/__INDEX__/g, unitIndex);
+            unitsContainer.insertBefore(newUnit, unitTemplate);
+            unitIndex++;
+        });
     }
+
+    /* ---------------- remove unit (delegated) -------- */
+    document.addEventListener('click', e => {
+        const removeBtn = e.target.closest('.remove-unit');
+        if (!removeBtn) return;
+        e.preventDefault();
+        const unitEntry = removeBtn.closest('.unit-entry');
+        if (!unitEntry || unitEntry.id === 'unit-template') return;
+        const idField = unitEntry.querySelector('input[name$="[id]"]');
+        if (idField && idField.value) {
+            const deleteInput = document.createElement('input');
+            deleteInput.type = 'hidden';
+            deleteInput.name = `units[${idField.value}][_delete]`;
+            deleteInput.value = '1';
+            form.appendChild(deleteInput);
+        }
+        unitEntry.remove();
+    });
 });
 
 function previewImage(input) {
     if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        
-        reader.onload = function(e) {
+        const reader = new FileReader();
+        reader.onload = e => {
             document.getElementById('preview-img').src = e.target.result;
             document.getElementById('image-preview').classList.remove('hidden');
             document.getElementById('upload-placeholder').classList.add('hidden');
-        }
-        
+        };
         reader.readAsDataURL(input.files[0]);
     }
 }

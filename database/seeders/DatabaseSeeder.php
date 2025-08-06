@@ -20,20 +20,5 @@ class DatabaseSeeder extends Seeder
             'role' => 'landlord',
             'password' => bcrypt('password123')
         ]);
-
-        // Create tenant users
-        User::factory()->create([
-            'name' => 'Jane Tenant',
-            'email' => 'tenant@astraspaces.com',
-            'role' => 'tenant',
-            'password' => bcrypt('password123')
-        ]);
-
-        User::factory()->create([
-            'name' => 'Mike Tenant',
-            'email' => 'mike@astraspaces.com',
-            'role' => 'tenant',
-            'password' => bcrypt('password123')
-        ]);
     }
 }

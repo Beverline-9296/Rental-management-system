@@ -37,7 +37,7 @@
                 <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
                     <div class="relative h-96 bg-gray-200">
                         @if($property->image)
-                            <img src="{{ $property->image_url }}" 
+                            <img src="{{ asset('storage/properties/' . $property->image) }}" 
                                  alt="{{ $property->name }}" 
                                  class="w-full h-full object-cover">
                         @else
@@ -51,18 +51,24 @@
                         
                         <!-- Status Badge -->
                         <div class="absolute top-4 right-4">
-                            @if($property->status === 'available')
-                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                    Available
-                                </span>
-                            @elseif($property->status === 'occupied')
-                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                    Occupied
-                                </span>
-                            @else
-                                <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                    Under Maintenance
-                                </span>
+                            @if($property->units->count() > 0)
+                                @php
+                                    $occupiedUnits = $unitsByStatus['occupied']->count();
+                                    $totalUnits = $property->units->count();
+                                @endphp
+                                @if($occupiedUnits == 0)
+                                    <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        All Available
+                                    </span>
+                                @elseif($occupiedUnits == $totalUnits)
+                                    <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        Fully Occupied
+                                    </span>
+                                @else
+                                    <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                        Partially Occupied
+                                    </span>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -107,6 +113,73 @@
                     </div>
                 @endif
 
+                <!-- Units Section -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">Units ({{ $property->units->count() }})</h3>
+                    
+                    @if($property->units->count() > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            @foreach($property->units as $unit)
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h4 class="text-lg font-semibold text-gray-900">Unit {{ $unit->unit_number }}</h4>
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                            @if($unit->status === 'available') bg-green-100 text-green-800
+                                            @elseif($unit->status === 'occupied') bg-blue-100 text-blue-800
+                                            @elseif($unit->status === 'maintenance') bg-yellow-100 text-yellow-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            {{ ucfirst($unit->status) }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Type:</span>
+                                            <span class="font-medium">{{ ucfirst(str_replace('-', ' ', $unit->unit_type)) }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Rent:</span>
+                                            <span class="font-medium text-blue-600">KSh {{ number_format($unit->rent_amount, 2) }}</span>
+                                        </div>
+                                        @if($unit->deposit_amount)
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Deposit:</span>
+                                                <span class="font-medium">KSh {{ number_format($unit->deposit_amount, 2) }}</span>
+                                            </div>
+                                        @endif
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Bedrooms:</span>
+                                            <span class="font-medium"><i class="fas fa-bed mr-1"></i>{{ $unit->bedrooms }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Bathrooms:</span>
+                                            <span class="font-medium"><i class="fas fa-bath mr-1"></i>{{ $unit->bathrooms }}</span>
+                                        </div>
+                                        @if($unit->features && count($unit->features) > 0)
+                                            <div class="mt-3">
+                                                <span class="text-gray-600 text-xs">Features:</span>
+                                                <div class="flex flex-wrap gap-1 mt-1">
+                                                    @foreach($unit->features as $feature)
+                                                        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">{{ $feature }}</span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @if($unit->notes)
+                                            <div class="mt-3">
+                                                <span class="text-gray-600 text-xs">Notes:</span>
+                                                <p class="text-xs text-gray-700 mt-1">{{ $unit->notes }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-gray-500 text-center py-8">No units found for this property.</p>
+                    @endif
+                </div>
+
                 <!-- Additional Notes -->
                 @if($property->notes)
                     <div class="bg-white rounded-lg shadow-md p-6">
@@ -123,48 +196,42 @@
                     <h3 class="text-xl font-semibold text-gray-900 mb-4">Property Details</h3>
                     
                     <div class="space-y-4">
-                        <!-- Rent Amount -->
-                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Monthly Rent</span>
-                            <span class="text-2xl font-bold text-blue-600">{{ $property->formatted_rent }}</span>
-                        </div>
-
                         <!-- Property Type -->
                         <div class="flex justify-between items-center py-2 border-b border-gray-100">
                             <span class="text-gray-600">Property Type</span>
                             <span class="font-medium text-gray-900">{{ ucfirst($property->property_type) }}</span>
                         </div>
 
-                        <!-- Bedrooms -->
+                        <!-- Total Units -->
                         <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Bedrooms</span>
+                            <span class="text-gray-600">Total Units</span>
                             <span class="font-medium text-gray-900">
-                                <i class="fas fa-bed mr-1"></i>{{ $property->bedrooms }}
+                                <i class="fas fa-home mr-1"></i>{{ $property->units->count() }}
                             </span>
                         </div>
 
-                        <!-- Bathrooms -->
+                        <!-- Available Units -->
                         <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                            <span class="text-gray-600">Bathrooms</span>
-                            <span class="font-medium text-gray-900">
-                                <i class="fas fa-bath mr-1"></i>{{ $property->bathrooms }}
+                            <span class="text-gray-600">Available Units</span>
+                            <span class="font-medium text-green-600">
+                                <i class="fas fa-check-circle mr-1"></i>{{ $unitsByStatus['available']->count() }}
                             </span>
                         </div>
 
-                        <!-- Size -->
-                        @if($property->size_sqft)
-                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                <span class="text-gray-600">Size</span>
-                                <span class="font-medium text-gray-900">
-                                    <i class="fas fa-ruler-combined mr-1"></i>{{ number_format($property->size_sqft) }} sq ft
-                                </span>
-                            </div>
-                        @endif
+                        <!-- Occupied Units -->
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-gray-600">Occupied Units</span>
+                            <span class="font-medium text-blue-600">
+                                <i class="fas fa-users mr-1"></i>{{ $unitsByStatus['occupied']->count() }}
+                            </span>
+                        </div>
 
-                        <!-- Status -->
+                        <!-- Maintenance Units -->
                         <div class="flex justify-between items-center py-2">
-                            <span class="text-gray-600">Status</span>
-                            <span class="font-medium text-gray-900">{{ ucfirst($property->status) }}</span>
+                            <span class="text-gray-600">Under Maintenance</span>
+                            <span class="font-medium text-yellow-600">
+                                <i class="fas fa-tools mr-1"></i>{{ $unitsByStatus['maintenance']->count() }}
+                            </span>
                         </div>
                     </div>
                 </div>

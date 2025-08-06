@@ -92,21 +92,64 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
     Route::get('tenants/{tenant}', [\App\Http\Controllers\Landlord\TenantController::class, 'show'])->name('tenants.show');
     Route::post('tenants/{tenant}/reset-password', [\App\Http\Controllers\Landlord\TenantController::class, 'resetPassword'])->name('tenants.reset-password');
     
+    // Maintenance Routes
+    Route::get('maintenance', [\App\Http\Controllers\Landlord\MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('maintenance/{maintenanceRequest}', [\App\Http\Controllers\Landlord\MaintenanceController::class, 'show'])->name('maintenance.show');
+    Route::patch('maintenance/{maintenanceRequest}/status', [\App\Http\Controllers\Landlord\MaintenanceController::class, 'updateStatus'])->name('maintenance.update-status');
+    Route::get('properties/{property}/units', [\App\Http\Controllers\Landlord\MaintenanceController::class, 'getUnits'])->name('properties.units');
+    
+    // Profile Routes
+    Route::get('profile', [\App\Http\Controllers\Landlord\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('profile', [\App\Http\Controllers\Landlord\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('profile/photo', [\App\Http\Controllers\Landlord\ProfileController::class, 'deletePhoto'])->name('profile.delete-photo');
+    
+    // Message Routes
+    Route::get('messages', [\App\Http\Controllers\Landlord\MessageController::class, 'index'])->name('messages.index');
+    Route::get('messages/create', [\App\Http\Controllers\Landlord\MessageController::class, 'create'])->name('messages.create');
+    Route::post('messages', [\App\Http\Controllers\Landlord\MessageController::class, 'store'])->name('messages.store');
+    Route::get('messages/{message}', [\App\Http\Controllers\Landlord\MessageController::class, 'show'])->name('messages.show');
+    Route::patch('messages/{message}/read', [\App\Http\Controllers\Landlord\MessageController::class, 'markAsRead'])->name('messages.mark-read');
+    Route::delete('messages/{message}', [\App\Http\Controllers\Landlord\MessageController::class, 'destroy'])->name('messages.destroy');
+
+    // Payment Management Routes
+    Route::get('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'index'])->name('payments.index');
+    Route::get('payments/create', [\App\Http\Controllers\Landlord\PaymentController::class, 'create'])->name('payments.create');
+    Route::post('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'store'])->name('payments.store');
+    Route::get('payments/{payment}', [\App\Http\Controllers\Landlord\PaymentController::class, 'show'])->name('payments.show');
+
     // Other landlord routes
-    Route::get('/messages', [LandlordController::class, 'messages'])->name('messages');
-    Route::get('/payments', [LandlordController::class, 'payments'])->name('payments');
+
     Route::get('/settings', [LandlordController::class, 'settings'])->name('settings');
 });
 
 // Tenant Routes (Protected by role middleware)
 Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     Route::get('/dashboard', [TenantController::class, 'dashboard'])->name('dashboard');
-    Route::get('/payments', [TenantController::class, 'payments'])->name('payments');
+    Route::get('/payments', [\App\Http\Controllers\Tenant\PaymentController::class, 'index'])->name('payments');
     Route::get('/unit-details', [TenantController::class, 'unitDetails'])->name('unit-details');
     Route::get('/messages', [TenantController::class, 'messages'])->name('messages');
     Route::get('/contact-landlord', [TenantController::class, 'contactLandlord'])->name('contact-landlord');
     Route::get('/settings', [TenantController::class, 'settings'])->name('settings');
     Route::post('/make-payment', [TenantController::class, 'makePayment'])->name('make-payment');
+    
+    // Maintenance Routes
+    Route::get('maintenance', [\App\Http\Controllers\Tenant\MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('maintenance/create', [\App\Http\Controllers\Tenant\MaintenanceController::class, 'create'])->name('maintenance.create');
+    Route::post('maintenance', [\App\Http\Controllers\Tenant\MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::get('maintenance/{maintenanceRequest}', [\App\Http\Controllers\Tenant\MaintenanceController::class, 'show'])->name('maintenance.show');
+    
+    // Profile Routes
+    Route::get('profile', [\App\Http\Controllers\Tenant\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('profile', [\App\Http\Controllers\Tenant\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('profile/photo', [\App\Http\Controllers\Tenant\ProfileController::class, 'deletePhoto'])->name('profile.delete-photo');
+    
+    // Message Routes
+    Route::get('messages', [\App\Http\Controllers\Tenant\MessageController::class, 'index'])->name('messages.index');
+    Route::get('messages/create', [\App\Http\Controllers\Tenant\MessageController::class, 'create'])->name('messages.create');
+    Route::post('messages', [\App\Http\Controllers\Tenant\MessageController::class, 'store'])->name('messages.store');
+    Route::get('messages/{message}', [\App\Http\Controllers\Tenant\MessageController::class, 'show'])->name('messages.show');
+    Route::patch('messages/{message}/read', [\App\Http\Controllers\Tenant\MessageController::class, 'markAsRead'])->name('messages.mark-read');
+    Route::delete('messages/{message}', [\App\Http\Controllers\Tenant\MessageController::class, 'destroy'])->name('messages.destroy');
 });
 
 Route::middleware('auth')->group(function () {

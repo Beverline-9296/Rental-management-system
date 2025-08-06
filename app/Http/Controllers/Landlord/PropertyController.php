@@ -44,13 +44,30 @@ class PropertyController extends Controller
     public function index()
     {
         $properties = Property::where('landlord_id', Auth::id())
+            ->with(['units'])
             ->withCount(['units', 'units as occupied_units_count' => function($query) {
                 $query->where('status', 'occupied');
             }])
             ->latest()
             ->paginate(10);
 
-        return view('landlord.properties.index', compact('properties'));
+        // Calculate stats
+        $allProperties = Property::where('landlord_id', Auth::id())->with('units')->get();
+        $totalProperties = $allProperties->count();
+        $totalUnits = $allProperties->flatMap->units->count();
+        $occupiedUnits = $allProperties->flatMap->units->where('status', 'occupied')->count();
+        $vacantUnits = $allProperties->flatMap->units->where('status', 'available')->count();
+        $totalRent = $allProperties->sum('rent_amount');
+
+        $stats = [
+            'total_properties' => $totalProperties,
+            'total_units' => $totalUnits,
+            'occupied_units' => $occupiedUnits,
+            'vacant_units' => $vacantUnits,
+            'total_rent' => $totalRent,
+        ];
+
+        return view('landlord.properties.index', compact('properties', 'stats'));
     }
 
     /**
@@ -212,8 +229,7 @@ class PropertyController extends Controller
         $this->authorize('update', $property);
         
         \Log::info('Starting property update', ['property_id' => $property->id, 'request_data' => $request->except(['_token', '_method'])]);
-        
-        // Start database transaction
+                // Start database transaction
         return \DB::transaction(function () use ($request, $property) {
             try {
                 // Validate property data

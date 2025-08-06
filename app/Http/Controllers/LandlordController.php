@@ -20,8 +20,32 @@ class LandlordController extends Controller
         $total_properties = $properties->count();
         $occupied_units = $properties->where('status', 'occupied')->count();
         $available_units = $properties->where('status', 'available')->count();
-        $total_arrears = $properties->sum('rent_amount'); // This would be calculated differently in real app
-        
+        // Calculate real total arrears for all tenants
+        $propertyIds = $properties->pluck('id');
+        $assignments = \App\Models\TenantAssignment::whereHas('unit', function($q) use ($propertyIds) {
+            $q->whereIn('property_id', $propertyIds);
+        })
+        ->active()
+        ->with(['tenant', 'unit', 'property'])
+        ->get();
+
+        $total_arrears = 0;
+        foreach ($assignments as $assignment) {
+            $tenant = $assignment->tenant;
+            if (!$tenant) continue;
+            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
+                ->where('unit_id', $assignment->unit_id)
+                ->where('payment_type', 'rent')
+                ->sum('amount');
+            $today = now();
+            $start = $assignment->start_date;
+            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date : $today;
+            $months = $start ? $start->diffInMonths($end) + 1 : 0;
+            $totalDue = $months * $assignment->monthly_rent;
+            $arrears = max(0, $totalDue - $totalPaid);
+            $total_arrears += $arrears;
+        }
+
         $data = [
             'total_properties' => $total_properties,
             'total_tenants' => $occupied_units, // Assuming 1 tenant per occupied unit
@@ -65,7 +89,7 @@ class LandlordController extends Controller
      */
     public function payments()
     {
-        return view('landlord.payments');
+        return view('landlord.payments.index');
     }
     
     /**

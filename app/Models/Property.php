@@ -41,6 +41,14 @@ class Property extends Model
     }
 
     /**
+     * Get all payments for this property
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
      * Get the tenants for the property through units
      */
     public function tenants()
