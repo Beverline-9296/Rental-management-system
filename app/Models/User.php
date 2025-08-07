@@ -146,8 +146,9 @@ class User extends Authenticatable
         $totalDue = 0;
         $today = now();
         foreach ($this->tenantAssignments()->active()->get() as $assignment) {
-            $start = $assignment->start_date;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date : $today;
+            // Calculate full months only for clean amounts
+            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
+            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
             $months = $start ? $start->diffInMonths($end) + 1 : 0;
             $totalDue += $months * $assignment->monthly_rent;
         }

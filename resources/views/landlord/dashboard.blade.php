@@ -145,7 +145,7 @@
                     <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
                         <div class="flex items-center justify-between">
                             <div>
-                                <div class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">KSh {{ number_format($total_arrears) }}</div>
+                                <div class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">KSh {{ number_format($sum_arrears,2) }}</div>
                                 <div class="text-sm font-medium text-gray-600 mt-2">Total Arrears</div>
                             </div>
                             <div class="bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-xl">

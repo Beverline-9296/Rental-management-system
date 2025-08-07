@@ -5,6 +5,7 @@
     <h2 class="text-2xl font-bold mb-6">Payment Details</h2>
     <div class="bg-white rounded shadow p-6">
         <dl class="grid grid-cols-1 gap-4">
+        
             <div>
                 <dt class="font-semibold">Date</dt>
                 <dd>{{ $payment->payment_date->format('Y-m-d') }}</dd>

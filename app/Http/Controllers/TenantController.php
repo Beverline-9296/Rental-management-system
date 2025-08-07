@@ -17,21 +17,40 @@ class TenantController extends Controller
     {
         $user = Auth::user();
         
-        // Sample data - you'll replace with actual database queries
+        // Get tenant's current assignment
+        $assignment = TenantAssignment::with(['unit.property'])
+            ->where('tenant_id', $user->id)
+            ->where('status', 'active')
+            ->first();
+        
+        // Calculate real financial data
+        $totalPaid = $user->getTotalPaid();
+        $totalDue = $user->getTotalDue();
+        $arrears = $user->getArrears();
+        $balance = $totalPaid - $totalDue; // Positive if overpaid, negative if owing
+        
+        // Get recent payments (last 5)
+        $recentPayments = $user->payments()
+            ->orderByDesc('payment_date')
+            ->with(['unit', 'property'])
+            ->limit(5)
+            ->get();
+        
         $data = [
             'rental_summary' => [
-                'rent_amount' => 0,
-                'balance' => 0,
-                'arrears' => 0
+                'rent_amount' => $assignment ? $assignment->monthly_rent : 0,
+                'balance' => abs($balance), // Show absolute value
+                'arrears' => $arrears
             ],
             'unit_details' => [
-                'property_name' => 'Not assigned',
-                'unit_number' => 'N/A',
-                'rent_amount' => 0
+                'property_name' => $assignment && $assignment->unit ? $assignment->unit->property->name : 'Not assigned',
+                'unit_number' => $assignment && $assignment->unit ? $assignment->unit->unit_number : 'N/A',
+                'rent_amount' => $assignment ? $assignment->monthly_rent : 0
             ],
-            'recent_activities' => [],
+            'recent_activities' => $recentPayments,
             'upcoming_payment' => null,
-            'user' => $user
+            'user' => $user,
+            'arrears' => $arrears // Add direct arrears variable for compatibility
         ];
         
         return view('tenant.dashboard', $data);

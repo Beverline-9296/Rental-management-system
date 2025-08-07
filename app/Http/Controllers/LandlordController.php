@@ -29,7 +29,7 @@ class LandlordController extends Controller
         ->with(['tenant', 'unit', 'property'])
         ->get();
 
-        $total_arrears = 0;
+        $sum_arrears = 0;
         foreach ($assignments as $assignment) {
             $tenant = $assignment->tenant;
             if (!$tenant) continue;
@@ -43,7 +43,13 @@ class LandlordController extends Controller
             $months = $start ? $start->diffInMonths($end) + 1 : 0;
             $totalDue = $months * $assignment->monthly_rent;
             $arrears = max(0, $totalDue - $totalPaid);
-            $total_arrears += $arrears;
+            $sum_arrears += $arrears;
+            $tenantsSummary[] = [
+                'tenant' => $tenant,
+                'unit' => $assignment->unit,
+                'property' => $assignment->property,
+                'arrears' => $arrears,
+            ];
         }
 
         $data = [
@@ -51,7 +57,7 @@ class LandlordController extends Controller
             'total_tenants' => $occupied_units, // Assuming 1 tenant per occupied unit
             'occupied_units' => $occupied_units,
             'available_units' => $available_units,
-            'total_arrears' => $total_arrears,
+            'sum_arrears' => $sum_arrears,
             'recent_activities' => [], // You can implement this later
             'upcoming_payments' => [], // You can implement this later
             'user' => $user

@@ -12,7 +12,7 @@
             </ul>
         </div>
     @endif
-    <form method="POST" action="{{ route('payments.store') }}" class="bg-white p-6 rounded shadow" id="payment-form">
+    <form method="POST" action="{{ route('landlord.payments.store') }}" class="bg-white p-6 rounded shadow" id="payment-form">
         @csrf
         <div class="mb-4">
             <label class="block mb-1 font-semibold">Property *</label>
