@@ -222,11 +222,11 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Unit Number *</label>
                                         <input type="text" name="units[__INDEX__][unit_number]" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-md" 
-                                               placeholder="e.g., A101" required>
+                                               placeholder="e.g., A101">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
-                                        <select name="units[__INDEX__][type]" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                        <select name="units[__INDEX__][type]" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                             @foreach($unitTypes as $key => $label)
                                                 <option value="{{ $key }}">{{ $label }}</option>
                                             @endforeach
@@ -235,17 +235,17 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Bedrooms *</label>
                                         <input type="number" name="units[__INDEX__][bedrooms]" min="0" value="1"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Bathrooms *</label>
                                         <input type="number" name="units[__INDEX__][bathrooms]" min="0" value="1" step="0.5"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Rent (KSh) *</label>
                                         <input type="number" name="units[__INDEX__][rent_amount]" min="0" step="0.01"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                     </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Deposit (KSh)</label>
@@ -391,13 +391,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* ---------------- form validation ---------------- */
     form.addEventListener('submit', function(e) {
+        console.log('Form submission started');
+        
+        // Check if unitsContainer exists before querying
+        if (!unitsContainer) {
+            console.warn('Units container not found, allowing form submission');
+            return true;
+        }
+        
         const unitEntries = unitsContainer.querySelectorAll('.unit-entry:not(#unit-template)');
+        console.log('Found unit entries:', unitEntries.length);
         
         // Only prevent default if validation fails
         if (unitEntries.length === 0) {
             e.preventDefault();
             alert('Please add at least one unit to the property.');
             return false;
+        }
+        
+        // Check for required fields
+        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let hasEmptyRequired = false;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                console.warn('Empty required field:', field.name);
+                hasEmptyRequired = true;
+            }
+        });
+        
+        if (hasEmptyRequired) {
+            console.warn('Form has empty required fields, but allowing browser validation to handle it');
+        }
+        
+        // Log for debugging
+        console.log('Form validation passed, submitting with', unitEntries.length, 'units');
+        
+        // Add alert to confirm form submission
+        alert('Form is about to submit. Check if page redirects after clicking OK.');
+        
+        // Add a visual indicator that form is being submitted
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
         }
         
         // If validation passes, the form will submit normally
@@ -411,6 +448,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const newUnit = document.createElement('div');
             newUnit.className = 'unit-entry bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200';
             newUnit.innerHTML = unitTemplate.innerHTML.replace(/__INDEX__/g, unitIndex);
+            
+            // Add required attributes to the new unit's form fields
+            const requiredFields = newUnit.querySelectorAll('input[name*="unit_number"], select[name*="type"], input[name*="bedrooms"], input[name*="bathrooms"], input[name*="rent_amount"]');
+            requiredFields.forEach(field => {
+                field.setAttribute('required', 'required');
+            });
+            
             unitsContainer.insertBefore(newUnit, unitTemplate);
             unitIndex++;
         });

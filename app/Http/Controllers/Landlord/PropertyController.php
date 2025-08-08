@@ -226,12 +226,28 @@ class PropertyController extends Controller
      */
     public function update(Request $request, Property $property)
     {
+        \Log::info('PropertyController update method called', [
+            'property_id' => $property->id,
+            'user_id' => auth()->id(),
+            'request_method' => $request->method(),
+            'request_url' => $request->url()
+        ]);
+
         $this->authorize('update', $property);
         
-        \Log::info('Starting property update', ['property_id' => $property->id, 'request_data' => $request->except(['_token', '_method'])]);
-                // Start database transaction
+        \Log::info('Starting property update', [
+            'property_id' => $property->id, 
+            'request_method' => $request->method(),
+            'request_data' => $request->except(['_token', '_method', 'image']),
+            'has_units' => $request->has('units'),
+            'units_count' => $request->has('units') ? count($request->input('units', [])) : 0
+        ]);
+        
+        // Start database transaction
         return \DB::transaction(function () use ($request, $property) {
             try {
+                \Log::info('About to validate request data');
+                
                 // Validate property data
                 $validated = $request->validate([
                     'name' => 'required|string|max:255',
@@ -253,6 +269,11 @@ class PropertyController extends Controller
                     'units.*.deposit_amount' => 'nullable|numeric|min:0',
                     'units.*.features' => 'nullable|string',
                     'units.*.notes' => 'nullable|string',
+                ]);
+
+                \Log::info('Validation passed, validated data:', [
+                    'property_fields' => array_keys($validated),
+                    'units_count' => count($validated['units'] ?? [])
                 ]);
 
                 // Handle file upload
@@ -292,7 +313,9 @@ class PropertyController extends Controller
                 unset($validated['units']);
 
                 // Update the property
+                \Log::info('About to update property with data:', $validated);
                 $property->update($validated);
+                \Log::info('Property updated successfully');
 
                 // Get existing unit IDs to track which ones to keep
                 $existingUnitIds = $property->units->pluck('id')->toArray();
@@ -340,8 +363,9 @@ class PropertyController extends Controller
                         ->delete();
                 }
 
-                return redirect()->route('landlord.properties.show', $property)
-                    ->with('success', 'Property and units updated successfully!');
+                \Log::info('Property update completed successfully');
+                return redirect()->route('landlord.properties.index')
+                    ->with('success', 'Property updated successfully! (Debug: Controller reached)');
 
             } catch (\Exception $e) {
                 \Log::error('Error updating property', [

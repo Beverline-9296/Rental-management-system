@@ -262,11 +262,12 @@
                                 <h3 class="text-lg font-semibold text-gray-800">RECENT PAYMENTS</h3>
                             </div>
                             <div class="p-6">
-                                <div class="text-center py-4 text-gray-500">
-                                    <i class="fas fa-history text-2xl mb-2"></i>
-                                    <p class="text-sm">No payment history</p>
-                                    <a href="{{ route('tenant.payments') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
-                                </div>
+                                 
+                                    <div class="text-center py-4 text-gray-500">
+                                        <i class="fas fa-history text-2xl mb-2"></i>
+                                        <p class="text-sm">No payment history</p>
+                                        <a href="{{ route('tenant.payments') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
+                                    </div>
                             </div>
                         </div>
                     </div>
