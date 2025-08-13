@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\MpesaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -149,7 +150,16 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
 // Tenant Routes (Protected by role middleware)
 Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
     Route::get('/dashboard', [TenantController::class, 'dashboard'])->name('dashboard');
-    Route::get('/payments', [\App\Http\Controllers\Tenant\PaymentController::class, 'index'])->name('payments');
+    Route::get('/payments', [\App\Http\Controllers\Tenant\PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/make-payment', [\App\Http\Controllers\Tenant\PaymentController::class, 'makePayment'])->name('payments.make-payment');
+    Route::get('/payments/make', [\App\Http\Controllers\Tenant\PaymentController::class, 'make'])->name('payments.make');
+    Route::get('/payments/export', [\App\Http\Controllers\Tenant\PaymentController::class, 'showExportForm'])->name('payments.export');
+    Route::post('/payments/export-excel', [\App\Http\Controllers\Tenant\PaymentController::class, 'exportExcel'])->name('payments.export-excel');
+    
+    // M-Pesa Payment Routes
+    Route::post('/mpesa/stk-push', [\App\Http\Controllers\MpesaController::class, 'stkPush'])->name('mpesa.stk-push');
+    Route::post('/mpesa/check-status', [\App\Http\Controllers\MpesaController::class, 'checkStatus'])->name('mpesa.check-status');
+    
     Route::get('/unit-details', [TenantController::class, 'unitDetails'])->name('unit-details');
     Route::get('/messages', [TenantController::class, 'messages'])->name('messages');
     Route::get('/contact-landlord', [TenantController::class, 'contactLandlord'])->name('contact-landlord');

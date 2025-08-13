@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Tenant Dashboard - Rental')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,9 +43,13 @@
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.payments') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.payments.index') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
                         <i class="fas fa-credit-card w-5"></i>
                         <span>My Payments</span>
+                    </a>
+                    <a href="{{ route('tenant.payments.make') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.payments.make') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                        <i class="fas fa-mobile-alt w-5"></i>
+                        <span>Make Payment</span>
                     </a>
                     <a href="{{ route('tenant.unit-details') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.unit-details') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
                         <i class="fas fa-home w-5"></i>

@@ -10,7 +10,7 @@ class Payment extends Model
         'payment_date' => 'datetime',
     ];
     protected $fillable = [
-        'tenant_id', 'unit_id', 'property_id', 'amount', 'payment_date', 'payment_method', 'payment_type', 'notes', 'recorded_by'
+        'tenant_id', 'unit_id', 'property_id', 'amount', 'payment_date', 'payment_method', 'payment_type', 'notes', 'recorded_by', 'mpesa_transaction_id'
     ];
 
     public function tenant()
@@ -31,5 +31,10 @@ class Payment extends Model
     public function recordedBy()
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    public function mpesaTransaction()
+    {
+        return $this->belongsTo(MpesaTransaction::class, 'mpesa_transaction_id');
     }
 }

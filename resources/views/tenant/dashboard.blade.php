@@ -53,9 +53,13 @@
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
                     </a>
-                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-credit-card w-5"></i>
-                        <span>My Payments</span>
+                        <span>My Payments Records</span>
+                    </a>
+                    <a href="{{ route('tenant.payments.make') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>Make Payment</span>
                     </a>
                     <a href="{{ route('tenant.contact-landlord') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-phone w-5"></i>
@@ -266,7 +270,7 @@
                                     <div class="text-center py-4 text-gray-500">
                                         <i class="fas fa-history text-2xl mb-2"></i>
                                         <p class="text-sm">No payment history</p>
-                                        <a href="{{ route('tenant.payments') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
+                                        <a href="{{ route('tenant.payments.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
                                     </div>
                             </div>
                         </div>

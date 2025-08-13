@@ -41,7 +41,7 @@
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-credit-card w-5"></i>
                         <span>My Payments</span>
                     </a>
@@ -221,7 +221,7 @@
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <a href="{{ route('tenant.payments') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition duration-200 shadow-lg">
+                            <a href="{{ route('tenant.payments.index') }}" class="flex items-center justify-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition duration-200 shadow-lg">
                                 <i class="fas fa-credit-card mr-3"></i>
                                 <span class="font-medium">Make Payment</span>
                             </a>

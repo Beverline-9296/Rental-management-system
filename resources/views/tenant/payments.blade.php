@@ -41,7 +41,7 @@
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="{{ route('tenant.payments') }}" class="flex items-center space-x-3 bg-white bg-opacity-20 text-white p-3 rounded-lg transition hover:bg-opacity-30">
+                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 bg-white bg-opacity-20 text-white p-3 rounded-lg transition hover:bg-opacity-30">
                         <i class="fas fa-credit-card w-5"></i>
                         <span class="font-medium">My Payments</span>
                     </a>

@@ -2,7 +2,14 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto py-10">
-    <h2 class="text-2xl font-bold mb-6">My Payment History</h2>
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">My Payment History</h2>
+        <a href="{{ route('tenant.payments.export') }}" 
+           class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center">
+            <i class="fas fa-file-excel mr-2"></i>
+            Export to Excel
+        </a>
+    </div>
     <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="bg-white rounded shadow p-4">
             <div class="text-gray-500 text-sm">Total Paid</div>
