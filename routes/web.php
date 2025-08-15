@@ -20,6 +20,11 @@ Route::get('/contact', function () {
     return view('contact');
 });
 
+// M-Pesa Testing Dashboard (for development)
+Route::get('/mpesa-test', function () {
+    return view('mpesa-test');
+})->name('mpesa.test.dashboard');
+
 // CSRF token refresh route
 Route::get('/csrf-token', function () {
     return response()->json(['token' => csrf_token()]);

@@ -7,6 +7,7 @@ use App\Services\MpesaService;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
 use App\Models\TenantAssignment;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class MpesaController extends Controller
             );
 
             if (isset($response['ResponseCode']) && $response['ResponseCode'] == '0') {
-                // Save transaction record
+                // Save transaction record as pending initially
                 $transaction = MpesaTransaction::create([
                     'tenant_id' => $user->id,
                     'unit_id' => $unitId,
@@ -77,7 +78,7 @@ class MpesaController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'STK Push sent successfully. Please check your phone.',
+                    'message' => 'STK Push sent successfully. Please enter your M-Pesa PIN to complete payment.',
                     'checkout_request_id' => $response['CheckoutRequestID'],
                     'transaction_id' => $transaction->id
                 ]);
@@ -130,7 +131,7 @@ class MpesaController extends Controller
                     $transaction->markAsSuccess($stkCallback);
                     
                     // Create payment record
-                    Payment::create([
+                    $payment = Payment::create([
                         'tenant_id' => $transaction->tenant_id,
                         'unit_id' => $transaction->unit_id,
                         'property_id' => $transaction->property_id,
@@ -142,6 +143,22 @@ class MpesaController extends Controller
                         'recorded_by' => $transaction->tenant_id,
                         'mpesa_transaction_id' => $transaction->id
                     ]);
+
+                    // Log the successful payment activity
+                    ActivityLog::logActivity(
+                        $transaction->tenant_id,
+                        'payment_completed',
+                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa',
+                        [
+                            'payment_id' => $payment->id,
+                            'amount' => $transaction->amount,
+                            'method' => 'mpesa',
+                            'receipt' => $transaction->mpesa_receipt_number,
+                            'unit_id' => $transaction->unit_id
+                        ],
+                        'fas fa-check-circle',
+                        'green'
+                    );
                 });
 
                 Log::info('Payment processed successfully for transaction: ' . $transaction->id);

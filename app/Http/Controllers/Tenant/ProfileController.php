@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -55,6 +57,18 @@ class ProfileController extends Controller
         }
 
         $user->save();
+
+        // Log the profile update activity
+        ActivityLog::logActivity(
+            $user->id,
+            'profile_updated',
+            'Updated profile information',
+            [
+                'fields_updated' => array_keys($user->getDirty())
+            ],
+            'fas fa-user-edit',
+            'purple'
+        );
 
         return Redirect::route('tenant.profile.edit')->with('status', 'profile-updated');
     }

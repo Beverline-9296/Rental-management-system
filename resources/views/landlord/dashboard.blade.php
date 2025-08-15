@@ -164,21 +164,33 @@
                                 <h3 class="text-lg font-semibold text-gray-800">RECENT ACTIVITIES</h3>
                             </div>
                             <div class="p-6">
+                                <!-- Debug info -->
+                                <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
+                                    DEBUG: Activities count: {{ count($recent_activities ?? []) }}<br>
+                                    Activities data: {{ json_encode($recent_activities ?? []) }}
+                                </div>
+                                
                                 @if(empty($recent_activities))
-                                    <div class="text-center py-8 text-gray-500">
-                                        <i class="fas fa-inbox text-4xl mb-4"></i>
-                                        <p>No recent activities</p>
+                                    <div class="text-center py-12 text-gray-500">
+                                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <i class="fas fa-inbox text-3xl text-blue-600"></i>
+                                        </div>
+                                        <p class="text-lg font-medium mb-2">No Recent Activities</p>
+                                        <p class="text-sm text-gray-400">Your activity history will appear here</p>
                                     </div>
                                 @else
                                     @foreach($recent_activities as $activity)
-                                        <div class="flex items-center py-3 border-b last:border-b-0">
-                                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                                                <i class="fas fa-bell text-blue-600"></i>
+                                        <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 rounded-lg px-4 transition duration-200">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 bg-{{ $activity['color'] }}-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="{{ $activity['icon'] }} text-{{ $activity['color'] }}-600"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-700 font-medium block">{{ $activity['description'] }}</span>
+                                                    <span class="text-xs text-gray-500">{{ $activity['date'] }}</span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p class="text-gray-800">{{ $activity['message'] }}</p>
-                                                <p class="text-sm text-gray-500">{{ $activity['time'] }}</p>
-                                            </div>
+                                            <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ $activity['time'] }}</span>
                                         </div>
                                     @endforeach
                                 @endif

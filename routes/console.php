@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Schedule M-Pesa pending transaction processing
-Schedule::command('mpesa:process-pending --timeout=3')
+Schedule::command('mpesa:process-pending --timeout=0.5')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();

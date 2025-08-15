@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,13 +53,43 @@ class LandlordController extends Controller
             ];
         }
 
+        // Get recent activities for the authenticated user
+        $recentActivities = ActivityLog::getRecentActivities(Auth::id(), 5);
+        
+        // Debug: Force some test data if empty
+        if ($recentActivities->isEmpty()) {
+            $mappedActivities = [
+                [
+                    'description' => 'Test activity - No activities found for user ' . Auth::id(),
+                    'time' => 'Just now',
+                    'date' => now()->format('M d, Y'),
+                    'icon' => 'fas fa-exclamation-triangle',
+                    'color' => 'yellow',
+                    'type' => 'debug',
+                    'metadata' => []
+                ]
+            ];
+        } else {
+            $mappedActivities = $recentActivities->map(function ($activity) {
+                return [
+                    'description' => $activity->description,
+                    'time' => $activity->created_at->diffForHumans(),
+                    'date' => $activity->created_at->format('M d, Y'),
+                    'icon' => $activity->icon,
+                    'color' => $activity->color,
+                    'type' => $activity->activity_type,
+                    'metadata' => $activity->metadata
+                ];
+            })->toArray();
+        }
+        
         $data = [
             'total_properties' => $total_properties,
             'total_tenants' => $occupied_units, // Assuming 1 tenant per occupied unit
             'occupied_units' => $occupied_units,
             'available_units' => $available_units,
             'sum_arrears' => $sum_arrears,
-            'recent_activities' => [], // You can implement this later
+            'recent_activities' => $mappedActivities,
             'upcoming_payments' => [], // You can implement this later
             'user' => $user
         ];

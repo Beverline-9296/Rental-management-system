@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function checkPaymentStatus(checkoutRequestId) {
         let attempts = 0;
-        const maxAttempts = 30; // Check for 5 minutes (30 * 10 seconds)
+        const maxAttempts = 2;// Check for 1 minutes (2 * 10 seconds)
         
         const interval = setInterval(async () => {
             attempts++;
@@ -197,10 +197,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         clearInterval(interval);
                         showMessage(`Payment successful! Receipt: ${result.mpesa_receipt_number}`, 'success');
                         
-                        // Redirect to payments page after 3 seconds
+                        // Redirect to payments page after 2 seconds
                         setTimeout(() => {
                             window.location.href = '{{ route("tenant.payments.index") }}';
-                        }, 3000);
+                        }, 2000);
                     } else if (result.status === 'failed' || result.status === 'cancelled') {
                         clearInterval(interval);
                         showMessage(`Payment ${result.status}: ${result.result_desc}`, 'error');
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearInterval(interval);
                 showMessage('Payment status check timed out. Please check your payment history.', 'error');
             }
-        }, 10000); // Check every 10 seconds
+        }, 1000); // Check every 1 second
     }
 
     function getAuthToken() {

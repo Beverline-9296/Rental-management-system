@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Landlord;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Unit;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -136,6 +137,22 @@ class PropertyController extends Controller
 
                 // Create the property
                 $property = Property::create($validated);
+
+                // Log the property creation activity
+                ActivityLog::logActivity(
+                    Auth::id(),
+                    'property_created',
+                    'Created new property: ' . $property->name,
+                    [
+                        'property_id' => $property->id,
+                        'property_name' => $property->name,
+                        'property_type' => $property->property_type,
+                        'location' => $property->location,
+                        'units_count' => count($unitsData)
+                    ],
+                    'fas fa-building',
+                    'green'
+                );
 
                 // Create units for the property
                 foreach ($unitsData as $unitData) {
@@ -317,6 +334,20 @@ class PropertyController extends Controller
                 $property->update($validated);
                 \Log::info('Property updated successfully');
 
+                // Log the property update activity
+                ActivityLog::logActivity(
+                    Auth::id(),
+                    'property_updated',
+                    'Updated property: ' . $property->name,
+                    [
+                        'property_id' => $property->id,
+                        'property_name' => $property->name,
+                        'units_updated' => count($unitsData)
+                    ],
+                    'fas fa-edit',
+                    'blue'
+                );
+
                 // Get existing unit IDs to track which ones to keep
                 $existingUnitIds = $property->units->pluck('id')->toArray();
                 $updatedUnitIds = [];
@@ -396,6 +427,20 @@ class PropertyController extends Controller
                     Storage::disk('public')->delete('properties/' . $property->image);
                 }
                 
+                // Log the property deletion activity
+                ActivityLog::logActivity(
+                    Auth::id(),
+                    'property_deleted',
+                    'Deleted property: ' . $property->name,
+                    [
+                        'property_name' => $property->name,
+                        'property_type' => $property->property_type,
+                        'location' => $property->location
+                    ],
+                    'fas fa-trash',
+                    'red'
+                );
+
                 // Delete the property
                 $property->delete();
                 

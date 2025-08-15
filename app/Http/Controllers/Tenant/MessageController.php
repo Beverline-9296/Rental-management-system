@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\User;
 use App\Models\Property;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -116,7 +117,22 @@ class MessageController extends Controller
             $validated['attachments'] = $attachments;
         }
         
-        Message::create($validated);
+        $message = Message::create($validated);
+        
+        // Log the message activity
+        ActivityLog::logActivity(
+            Auth::id(),
+            'message_sent',
+            'Sent ' . $validated['priority'] . ' priority message: ' . $validated['subject'],
+            [
+                'message_id' => $message->id,
+                'priority' => $validated['priority'],
+                'type' => $validated['message_type'],
+                'recipient' => $message->receiver->name
+            ],
+            'fas fa-envelope',
+            'blue'
+        );
         
         return redirect()->route('tenant.messages.index')
                         ->with('success', 'Message sent successfully!');

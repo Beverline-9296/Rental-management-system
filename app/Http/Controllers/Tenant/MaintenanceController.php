@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\MaintenanceRequest;
 use App\Models\TenantAssignment;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -72,7 +73,7 @@ class MaintenanceController extends Controller
             return back()->withErrors(['unit_id' => 'You do not have access to this unit.']);
         }
 
-        MaintenanceRequest::create([
+        $maintenanceRequest = MaintenanceRequest::create([
             'property_id' => $assignment->unit->property_id,
             'unit_id' => $request->unit_id,
             'tenant_id' => Auth::id(),
@@ -80,6 +81,20 @@ class MaintenanceController extends Controller
             'priority' => $request->priority,
             'status' => 'pending'
         ]);
+
+        // Log the maintenance request activity
+        ActivityLog::logActivity(
+            Auth::id(),
+            'maintenance_request',
+            'Submitted ' . $request->priority . ' priority maintenance request',
+            [
+                'request_id' => $maintenanceRequest->id,
+                'priority' => $request->priority,
+                'unit' => $assignment->unit->unit_number
+            ],
+            'fas fa-tools',
+            'orange'
+        );
 
         return redirect()->route('tenant.maintenance.index')
             ->with('success', 'Maintenance request submitted successfully.');

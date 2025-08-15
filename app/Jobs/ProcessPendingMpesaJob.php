@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
+use App\Services\MpesaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -13,7 +14,7 @@ class ProcessPendingMpesaJob implements ShouldQueue
 {
     use Queueable;
 
-    public $timeout = 300; // 5 minutes
+    public $timeout = 60; // 1 minutes
     public $tries = 3;
 
     private $timeoutMinutes;
@@ -21,7 +22,7 @@ class ProcessPendingMpesaJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($timeoutMinutes = 3)
+    public function __construct($timeoutMinutes = 0.5)
     {
         $this->timeoutMinutes = $timeoutMinutes;
     }
@@ -50,33 +51,21 @@ class ProcessPendingMpesaJob implements ShouldQueue
 
         foreach ($pendingTransactions as $transaction) {
             try {
-                DB::transaction(function () use ($transaction) {
-                    // Generate receipt number
-                    $receiptNumber = 'AUTO' . time() . rand(1000, 9999);
-                    
-                    // Update M-Pesa transaction as successful
+                $transactionAge = now()->diffInMinutes($transaction->created_at);
+                
+                // Only process transactions older than 0.5 minutes (30 seconds)
+                if ($transactionAge >= 0.5 || $transactionAge < 0) {
+                    // For sandbox: Mark ALL transactions as FAILED by default
+                    // This is safer - only successful callbacks will mark as success
                     $transaction->update([
-                        'status' => 'success',
-                        'mpesa_receipt_number' => $receiptNumber,
+                        'status' => 'failed',
                         'transaction_date' => now(),
-                        'result_desc' => 'Payment auto-processed by job after timeout',
-                        'result_code' => '0'
+                        'result_desc' => 'Transaction timed out or was cancelled',
+                        'result_code' => '1032'
                     ]);
                     
-                    // Create payment record
-                    Payment::create([
-                        'tenant_id' => $transaction->tenant_id,
-                        'unit_id' => $transaction->unit_id,
-                        'property_id' => $transaction->property_id,
-                        'amount' => $transaction->amount,
-                        'payment_date' => now(),
-                        'payment_method' => 'mpesa',
-                        'payment_type' => 'rent',
-                        'notes' => 'M-Pesa payment auto-processed by job - Receipt: ' . $receiptNumber,
-                        'recorded_by' => $transaction->tenant_id,
-                        'mpesa_transaction_id' => $transaction->id
-                    ]);
-                });
+                    Log::info("M-Pesa transaction {$transaction->id} marked as failed due to timeout (sandbox safe mode)");
+                }
 
                 $processed++;
 

@@ -183,8 +183,13 @@
                                     @foreach($recent_activities as $activity)
                                         <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 rounded-lg px-4 transition duration-200">
                                             <div class="flex items-center">
-                                                <div class="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mr-4"></div>
-                                                <span class="text-gray-700 font-medium">{{ $activity['description'] }}</span>
+                                                <div class="w-10 h-10 bg-{{ $activity['color'] }}-100 rounded-full flex items-center justify-center mr-4">
+                                                    <i class="{{ $activity['icon'] }} text-{{ $activity['color'] }}-600"></i>
+                                                </div>
+                                                <div>
+                                                    <span class="text-gray-700 font-medium block">{{ $activity['description'] }}</span>
+                                                    <span class="text-xs text-gray-500">{{ $activity['date'] }}</span>
+                                                </div>
                                             </div>
                                             <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ $activity['time'] }}</span>
                                         </div>
@@ -266,12 +271,36 @@
                                 <h3 class="text-lg font-semibold text-gray-800">RECENT PAYMENTS</h3>
                             </div>
                             <div class="p-6">
-                                 
+                                @if(isset($recent_payments) && $recent_payments->count() > 0)
+                                    <div class="space-y-3">
+                                        @foreach($recent_payments as $payment)
+                                            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                        <i class="fas fa-credit-card text-green-600 text-xs"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-medium text-gray-800">{{ ucfirst($payment->payment_type) }} Payment</p>
+                                                        <p class="text-xs text-gray-500">{{ $payment->payment_date->format('M d, Y') }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-sm font-semibold text-green-600">+KSh {{ number_format($payment->amount) }}</p>
+                                                    <p class="text-xs text-gray-500">{{ ucfirst($payment->payment_method) }}</p>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <a href="{{ route('tenant.payments.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
+                                    </div>
+                                @else
                                     <div class="text-center py-4 text-gray-500">
                                         <i class="fas fa-history text-2xl mb-2"></i>
                                         <p class="text-sm">No payment history</p>
                                         <a href="{{ route('tenant.payments.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All Payments</a>
                                     </div>
+                                @endif
                             </div>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Unit;
 use App\Models\TenantAssignment;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -116,6 +117,23 @@ class TenantController extends Controller
                 $unit = Unit::findOrFail($validated['unit_id']);
                 $unit->status = 'occupied';
                 $unit->save();
+
+                // Log the tenant assignment activity
+                ActivityLog::logActivity(
+                    auth()->id(),
+                    'tenant_assigned',
+                    'Assigned new tenant: ' . $tenant->name . ' to ' . $unit->property->name . ' - Unit ' . $unit->unit_number,
+                    [
+                        'tenant_id' => $tenant->id,
+                        'tenant_name' => $tenant->name,
+                        'unit_id' => $unit->id,
+                        'unit_number' => $unit->unit_number,
+                        'property_name' => $unit->property->name,
+                        'monthly_rent' => $validated['monthly_rent']
+                    ],
+                    'fas fa-user-plus',
+                    'green'
+                );
 
                 // Log successful tenant creation
                 \Log::info('Tenant created successfully', [
@@ -247,6 +265,22 @@ class TenantController extends Controller
         $unit->status = $validated['status'] === 'active' ? 'occupied' : 'available';
         $unit->save();
 
+        // Log the tenant update activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'tenant_updated',
+            'Updated tenant: ' . $tenant->name,
+            [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'unit_id' => $unit->id,
+                'unit_number' => $unit->unit_number,
+                'status' => $validated['status']
+            ],
+            'fas fa-user-edit',
+            'blue'
+        );
+
         return redirect()->route('landlord.tenants.show', $tenant)
             ->with('success', 'Tenant updated successfully!');
     }
@@ -258,6 +292,20 @@ class TenantController extends Controller
     {
         $this->authorize('delete', $tenant);
         
+        // Log the tenant removal activity
+        ActivityLog::logActivity(
+            auth()->id(),
+            'tenant_removed',
+            'Removed tenant: ' . $tenant->name,
+            [
+                'tenant_id' => $tenant->id,
+                'tenant_name' => $tenant->name,
+                'tenant_email' => $tenant->email
+            ],
+            'fas fa-user-minus',
+            'red'
+        );
+
         // End any active assignments
         $tenant->tenantAssignments()->update(['status' => 'terminated']);
         

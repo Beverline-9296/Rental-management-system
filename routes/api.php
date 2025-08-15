@@ -5,16 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Landlord\PropertyController;
 use App\Http\Controllers\MpesaController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+
+//--------------------------------------------------------------------------
+// API Routes
+//--------------------------------------------------------------------------
+//Here is where you can register API routes for your application. These
+//routes are loaded by the RouteServiceProvider within a group which
+//is assigned the "api" middleware group. Enjoy building your API!
+
 
 // Public API routes
 Route::middleware('api')->group(function () {
@@ -27,6 +25,13 @@ Route::middleware('api')->group(function () {
 Route::prefix('mpesa')->group(function () {
     Route::post('/callback', [MpesaController::class, 'callback'])->name('mpesa.callback');
     Route::post('/timeout', [MpesaController::class, 'timeout'])->name('mpesa.timeout');
+    
+    // M-Pesa Test Routes (for development/testing)
+    Route::get('/test/success', [App\Http\Controllers\MpesaTestController::class, 'testSuccess'])->name('mpesa.test.success');
+    Route::get('/test/failure', [App\Http\Controllers\MpesaTestController::class, 'testFailure'])->name('mpesa.test.failure');
+    Route::get('/test/timeout', [App\Http\Controllers\MpesaTestController::class, 'testTimeout'])->name('mpesa.test.timeout');
+    Route::get('/test/sandbox', [App\Http\Controllers\MpesaTestController::class, 'testSandboxDetection'])->name('mpesa.test.sandbox');
+    Route::get('/test/status/{transactionId}', [App\Http\Controllers\MpesaTestController::class, 'getTestStatus'])->name('mpesa.test.status');
 });
 
 // Authenticated API routes
