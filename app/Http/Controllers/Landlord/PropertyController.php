@@ -395,17 +395,19 @@ class PropertyController extends Controller
                 }
 
                 \Log::info('Property update completed successfully');
-                return redirect()->route('landlord.properties.index')
-                    ->with('success', 'Property updated successfully! (Debug: Controller reached)');
+                return redirect()->route('landlord.properties.edit', $property)
+                    ->with('success', 'Property updated successfully!');
 
             } catch (\Exception $e) {
                 \Log::error('Error updating property', [
                     'property_id' => $property->id,
                     'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
+                    'trace' => $e->getTraceAsString(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile()
                 ]);
                 
-                return back()->withInput()->with('error', 'An error occurred while updating the property. Please try again.');
+                return back()->withInput()->with('error', 'Error: ' . $e->getMessage() . ' (Line: ' . $e->getLine() . ')');
             }
         });
     }

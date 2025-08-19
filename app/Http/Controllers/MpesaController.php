@@ -29,7 +29,8 @@ class MpesaController extends Controller
         $request->validate([
             'phone_number' => 'required|string',
             'amount' => 'required|numeric|min:1',
-            'unit_id' => 'required|exists:units,id'
+            'unit_id' => 'required|exists:units,id',
+            'payment_type' => 'required|string|in:rent,deposit,utility,maintenance,other'
         ]);
 
         try {
@@ -50,8 +51,9 @@ class MpesaController extends Controller
                 ], 400);
             }
 
-            $accountReference = 'RENT-' . $assignment->unit->unit_number . '-' . $user->id;
-            $transactionDesc = 'Rent payment for ' . $assignment->property->name . ' - Unit ' . $assignment->unit->unit_number;
+            $paymentType = $request->payment_type;
+            $accountReference = strtoupper($paymentType) . '-' . $assignment->unit->unit_number . '-' . $user->id;
+            $transactionDesc = ucfirst($paymentType) . ' payment for ' . $assignment->property->name . ' - Unit ' . $assignment->unit->unit_number;
 
             // Initiate STK Push
             $response = $this->mpesaService->stkPush(
@@ -73,6 +75,7 @@ class MpesaController extends Controller
                     'merchant_request_id' => $response['MerchantRequestID'],
                     'account_reference' => $accountReference,
                     'transaction_desc' => $transactionDesc,
+                    'payment_type' => $paymentType,
                     'status' => MpesaTransaction::STATUS_PENDING
                 ]);
 
@@ -138,7 +141,7 @@ class MpesaController extends Controller
                         'amount' => $transaction->amount,
                         'payment_date' => now(),
                         'payment_method' => 'mpesa',
-                        'payment_type' => 'rent',
+                        'payment_type' => $transaction->payment_type,
                         'notes' => 'M-Pesa payment - Receipt: ' . $transaction->mpesa_receipt_number,
                         'recorded_by' => $transaction->tenant_id,
                         'mpesa_transaction_id' => $transaction->id

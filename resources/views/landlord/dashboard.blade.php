@@ -163,14 +163,9 @@
                             <div class="p-6 border-b">
                                 <h3 class="text-lg font-semibold text-gray-800">RECENT ACTIVITIES</h3>
                             </div>
-                            <div class="p-6">
-                                <!-- Debug info -->
-                                <div style="background: #f0f0f0; padding: 10px; margin-bottom: 10px; font-size: 12px;">
-                                    DEBUG: Activities count: {{ count($recent_activities ?? []) }}<br>
-                                    Activities data: {{ json_encode($recent_activities ?? []) }}
-                                </div>
+                            
                                 
-                                @if(empty($recent_activities))
+                                @if(empty($recent_activities) || count($recent_activities) === 0)
                                     <div class="text-center py-12 text-gray-500">
                                         <div class="bg-gradient-to-r from-blue-100 to-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                                             <i class="fas fa-inbox text-3xl text-blue-600"></i>

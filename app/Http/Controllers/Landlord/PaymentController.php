@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Landlord;
-
+use App\Models\ActivityLog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 

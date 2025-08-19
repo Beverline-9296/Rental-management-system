@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Models\TenantAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

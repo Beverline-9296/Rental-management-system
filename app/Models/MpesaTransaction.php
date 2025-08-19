@@ -24,6 +24,7 @@ class MpesaTransaction extends Model
         'result_desc',
         'account_reference',
         'transaction_desc',
+        'payment_type',
         'callback_data'
     ];
 

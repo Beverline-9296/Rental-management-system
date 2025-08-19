@@ -13,7 +13,8 @@ class PaymentController extends Controller
     {
         $user = auth()->user();
         $payments = $user->payments()->orderByDesc('payment_date')->with(['unit', 'property', 'recordedBy'])->get();
-        $totalPaid = $user->getTotalPaid();
+        $totalRentPaid = $user->getTotalRentPaid();
+        $totalDepositsPaid = $user->getTotalDepositsPaid();
         $totalDue = $user->getTotalDue();
         $arrears = $user->getArrears();
         
@@ -23,7 +24,7 @@ class PaymentController extends Controller
             ->with(['unit', 'property'])
             ->get();
         
-        return view('tenant.payments.index', compact('payments', 'totalPaid', 'totalDue', 'arrears', 'mpesaTransactions'));
+        return view('tenant.payments.index', compact('payments', 'totalRentPaid', 'totalDepositsPaid', 'totalDue', 'arrears', 'mpesaTransactions'));
     }
 
     public function makePayment()
@@ -41,7 +42,7 @@ class PaymentController extends Controller
                 ->with('error', 'You are not currently assigned to any unit.');
         }
         
-        return view('tenant.payments.make-payment', compact('assignments'));
+        return view('tenant.payments.make', compact('assignments'));
     }
 
     public function make()

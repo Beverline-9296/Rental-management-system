@@ -1,10 +1,10 @@
-<?php
+<?php 
 
 namespace App\Console\Commands;
-
 use Illuminate\Console\Command;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
+use App\Models\ActivityLog;
 use App\Services\MpesaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -71,18 +71,35 @@ class ProcessPendingMpesaTransactions extends Command
                         ]);
                         
                         // Create payment record
-                        Payment::create([
+                        $payment = Payment::create([
                             'tenant_id' => $transaction->tenant_id,
                             'unit_id' => $transaction->unit_id,
                             'property_id' => $transaction->property_id,
                             'amount' => $transaction->amount,
                             'payment_date' => now(),
                             'payment_method' => 'mpesa',
-                            'payment_type' => 'rent',
+                            'payment_type' => $transaction->payment_type,
                             'notes' => 'M-Pesa payment - Receipt: ' . $receiptNumber,
                             'recorded_by' => $transaction->tenant_id,
                             'mpesa_transaction_id' => $transaction->id
                         ]);
+
+                        // Log the successful payment activity
+                        ActivityLog::logActivity(
+                            $transaction->tenant_id,
+                            'payment_completed',
+                            'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa',
+                            [
+                                'payment_id' => $payment->id,
+                                'amount' => $transaction->amount,
+                                'method' => 'mpesa',
+                                'receipt' => $receiptNumber,
+                                'unit_id' => $transaction->unit_id,
+                                'payment_type' => $transaction->payment_type
+                            ],
+                            'fas fa-check-circle',
+                            'green'
+                        );
                     });
                     
                     $this->line("✅ SUCCESS: Transaction ID: {$transaction->id} (KES {$transaction->amount}) - Payment recorded");

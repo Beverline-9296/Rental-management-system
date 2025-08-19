@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Models\Property;
 use Illuminate\Http\Request;
+use App\Models\ActivityLog;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

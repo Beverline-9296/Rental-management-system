@@ -131,11 +131,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the total amount paid by this tenant
+     * Get the total amount paid by this tenant (all payment types)
      */
     public function getTotalPaid()
     {
         return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Get the total rent payments made by this tenant (excluding deposits)
+     */
+    public function getTotalRentPaid()
+    {
+        return $this->payments()->where('payment_type', 'rent')->sum('amount');
+    }
+
+    /**
+     * Get the total deposit payments made by this tenant
+     */
+    public function getTotalDepositsPaid()
+    {
+        return $this->payments()->where('payment_type', 'deposit')->sum('amount');
     }
 
     /**
@@ -156,11 +172,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get arrears for this tenant
+     * Get arrears for this tenant (rent due minus rent paid, excluding deposits)
      */
     public function getArrears()
     {
-        return max(0, $this->getTotalDue() - $this->getTotalPaid());
+        return max(0, $this->getTotalDue() - $this->getTotalRentPaid());
     }
 
     /**

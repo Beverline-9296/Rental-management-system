@@ -25,10 +25,11 @@ class TenantController extends Controller
             ->first();
         
         // Calculate real financial data
-        $totalPaid = $user->getTotalPaid();
+        $totalRentPaid = $user->getTotalRentPaid();
+        $totalDepositsPaid = $user->getTotalDepositsPaid();
         $totalDue = $user->getTotalDue();
         $arrears = $user->getArrears();
-        $balance = $totalPaid - $totalDue; // Positive if overpaid, negative if owing
+        $balance = $totalRentPaid - $totalDue; // Positive if overpaid, negative if owing
         
         // Get recent payments (last 5)
         $recentPayments = $user->payments()
@@ -37,24 +38,38 @@ class TenantController extends Controller
             ->limit(5)
             ->get();
         
-        // Get recent activities from activity log (last 5)
-        $recentActivities = ActivityLog::getRecentActivities($user->id, 5)->map(function ($activity) {
-            return [
-                'description' => $activity->description,
-                'time' => $activity->created_at->diffForHumans(),
-                'date' => $activity->created_at->format('M d, Y'),
-                'icon' => $activity->icon,
-                'color' => $activity->color,
-                'type' => $activity->activity_type,
-                'metadata' => $activity->metadata
-            ];
-        })->toArray();
+        // Get recent activities including all tenant activity types
+        $recentActivities = ActivityLog::where('user_id', $user->id)
+            ->whereIn('activity_type', [
+                'login',
+                'profile_updated', 
+                'payment_completed',
+                'payment_initiated',
+                'maintenance_request',
+                'message_sent'
+            ])
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(function ($activity) {
+                return [
+                    'description' => $activity->description,
+                    'time' => $activity->created_at->diffForHumans(),
+                    'date' => $activity->created_at->format('M d, Y'),
+                    'icon' => $activity->icon ?? 'fas fa-info-circle',
+                    'color' => $activity->color ?? 'blue',
+                    'type' => $activity->activity_type,
+                    'metadata' => $activity->metadata ?? []
+                ];
+            })->toArray();
         
         $data = [
             'rental_summary' => [
                 'rent_amount' => $assignment ? $assignment->monthly_rent : 0,
                 'balance' => abs($balance), // Show absolute value
-                'arrears' => $arrears
+                'arrears' => $arrears,
+                'total_rent_paid' => $totalRentPaid,
+                'total_deposits_paid' => $totalDepositsPaid
             ],
             'unit_details' => [
                 'property_name' => $assignment && $assignment->unit ? $assignment->unit->property->name : 'Not assigned',

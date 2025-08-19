@@ -20,6 +20,32 @@
     </div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Validation Errors:</strong>
+                <ul class="mt-2 list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <form id="property-edit-form" action="{{ route('landlord.properties.update', $property) }}" method="POST" enctype="multipart/form-data" class="p-8">
                 @csrf
@@ -209,7 +235,7 @@
                         @endforeach
                         
                         <!-- Empty unit template for adding new units -->
-                        <div id="unit-template" class="hidden">
+                        <template id="unit-template">
                             <div class="unit-entry bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
                                 <div class="flex justify-between items-center mb-2">
                                     <h4 class="text-sm font-medium text-gray-700">New Unit</h4>
@@ -265,7 +291,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </template>
                     </div>
                     
                     <div class="mt-4">
@@ -393,6 +419,17 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', function(e) {
         console.log('Form submission started');
         
+        // Template is now outside form, no need to disable fields
+        
+        // Log all form data for debugging
+        const formData = new FormData(form);
+        console.log('Form data being submitted:');
+        for (let [key, value] of formData.entries()) {
+            if (!key.includes('__INDEX__')) {
+                console.log(key + ':', value);
+            }
+        }
+        
         // Check if unitsContainer exists before querying
         if (!unitsContainer) {
             console.warn('Units container not found, allowing form submission');
@@ -409,27 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
         
-        // Check for required fields
-        const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
-        let hasEmptyRequired = false;
-        
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                console.warn('Empty required field:', field.name);
-                hasEmptyRequired = true;
-            }
-        });
-        
-        if (hasEmptyRequired) {
-            console.warn('Form has empty required fields, but allowing browser validation to handle it');
-        }
-        
-        // Log for debugging
-        console.log('Form validation passed, submitting with', unitEntries.length, 'units');
-        
-        // Add alert to confirm form submission
-        alert('Form is about to submit. Check if page redirects after clicking OK.');
-        
         // Add a visual indicator that form is being submitted
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) {
@@ -437,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
         }
         
-        // If validation passes, the form will submit normally
+        console.log('Form validation passed, submitting...');
         return true;
     });
 
@@ -445,9 +461,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let unitIndex = {{ count($property->units) }};
     if (addUnitBtn && unitTemplate) {
         addUnitBtn.addEventListener('click', () => {
+            console.log('Adding new unit with index:', unitIndex);
+            
             const newUnit = document.createElement('div');
             newUnit.className = 'unit-entry bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200';
-            newUnit.innerHTML = unitTemplate.innerHTML.replace(/__INDEX__/g, unitIndex);
+            
+            // Get the template content and replace all __INDEX__ placeholders
+            let templateHTML = unitTemplate.content.firstElementChild.outerHTML;
+            templateHTML = templateHTML.replace(/__INDEX__/g, unitIndex);
+            newUnit.innerHTML = templateHTML;
+            
+            console.log('Template HTML after replacement:', templateHTML.substring(0, 200));
             
             // Add required attributes to the new unit's form fields
             const requiredFields = newUnit.querySelectorAll('input[name*="unit_number"], select[name*="type"], input[name*="bedrooms"], input[name*="bathrooms"], input[name*="rent_amount"]');
@@ -457,6 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             unitsContainer.insertBefore(newUnit, unitTemplate);
             unitIndex++;
+            
+            console.log('New unit added successfully, next index will be:', unitIndex);
         });
     }
 

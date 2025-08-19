@@ -233,13 +233,12 @@
                                 <h3 class="text-lg font-semibold text-gray-800">ACTIONS</h3>
                             </div>
                             <div class="p-6 space-y-4">
-                                <form method="POST" action="{{ route('tenant.make-payment') }}">
-                                    @csrf
-                                    <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition duration-200">
-                                        <i class="fas fa-mobile-alt mr-2"></i>
-                                        MAKE PAYMENT
-                                    </button>
-                                </form>
+                            <a href="{{ route('tenant.payments.make') }}" 
+                                class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center">
+                                    <i class="fas fa-mobile-alt mr-2"></i>
+                                    MAKE PAYMENT
+                            </a>
+                                
                                 
                                 <div class="border-t pt-4">
                                     <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Info</h4>

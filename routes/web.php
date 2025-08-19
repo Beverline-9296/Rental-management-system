@@ -43,76 +43,7 @@ Route::get('/dashboard', function () {
 // Landlord Routes (Protected by role middleware)
 Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        
-        // Get recent properties with their unit counts
-        $properties = \App\Models\Property::where('landlord_id', $user->id)
-            ->withCount('units')
-            ->withCount(['units as occupied_units' => function($query) {
-                $query->where('status', 'occupied');
-            }])
-            ->withCount(['units as vacant_units' => function($query) {
-                $query->where('status', 'vacant');
-            }])
-            ->latest()
-            ->take(5)
-            ->get();
-            
-        // Get summary statistics
-        $total_properties = \App\Models\Property::where('landlord_id', $user->id)->count();
-        
-        // Get total occupied units
-        $total_occupied_units = \App\Models\Unit::whereHas('property', function($query) use ($user) {
-                $query->where('landlord_id', $user->id);
-            })
-            ->where('status', 'occupied')
-            ->count();
-            
-        // Get total unique tenants
-        $total_tenants = \App\Models\TenantAssignment::whereHas('unit.property', function($query) use ($user) {
-                $query->where('landlord_id', $user->id);
-            })
-            ->where('status', 'active')
-            ->distinct('tenant_id')
-            ->count('tenant_id');
-        
-        // Calculate real total arrears using same logic as PaymentController
-        $propertyIds = $properties->pluck('id');
-        $assignments = \App\Models\TenantAssignment::whereHas('unit', function($q) use ($propertyIds) {
-            $q->whereIn('property_id', $propertyIds);
-        })
-        ->active()
-        ->with(['tenant', 'unit', 'property'])
-        ->get();
-
-        $sum_arrears = 0;
-        foreach ($assignments as $assignment) {
-            $tenant = $assignment->tenant;
-            if (!$tenant) continue;
-            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
-                ->where('unit_id', $assignment->unit_id)
-                ->where('payment_type', 'rent')
-                ->sum('amount');
-            $today = now();
-            // Calculate full months only for clean amounts
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue = $months * $assignment->monthly_rent;
-            $arrears = max(0, $totalDue - $totalPaid);
-            $sum_arrears += $arrears;
-        }
-        
-        return view('landlord.dashboard', [
-            'properties' => $properties,
-            'user' => $user,
-            'total_properties' => $total_properties,
-            'total_tenants' => $total_tenants,
-            'occupied_units' => $total_occupied_units,
-            'sum_arrears' => $sum_arrears
-        ]);
-    })->name('dashboard');
+    Route::get('/dashboard', [LandlordController::class, 'dashboard'])->name('dashboard');
     
     // Properties Resource
     Route::resource('properties', \App\Http\Controllers\Landlord\PropertyController::class);
