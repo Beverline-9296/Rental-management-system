@@ -20,7 +20,7 @@ return [
     
     'passkey' => env('MPESA_PASSKEY'),
     
-    'callback_url' => env('MPESA_CALLBACK_URL', env('APP_URL') . '/api/mpesa/callback'),
+    'callback_url' => env('MPESA_CALLBACK_URL', env('MPESA_CALLBACK_URL') . '/api/mpesa/callback'),
     
-    'timeout_url' => env('MPESA_TIMEOUT_URL', env('APP_URL') . '/api/mpesa/timeout'),
+    'timeout_url' => env('MPESA_TIMEOUT_URL', env('MPESA_CALLBACK_URL') . '/api/mpesa/timeout'),
 ];

@@ -88,7 +88,7 @@ class MpesaService
             'Password' => $password,
             'Timestamp' => $timestamp,
             'TransactionType' => 'CustomerPayBillOnline',
-            'Amount' => $amount,
+            'Amount' => (int) $amount, // Ensure amount is integer
             'PartyA' => $phoneNumber,
             'PartyB' => $this->shortcode,
             'PhoneNumber' => $phoneNumber,

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Landlord\PropertyController;
 use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\UssdController;
 
 
 //--------------------------------------------------------------------------
@@ -20,6 +21,13 @@ Route::middleware('api')->group(function () {
     Route::get('/properties/{property}/available-units', [PropertyController::class, 'availableUnits'])
         ->name('api.properties.available-units');
 });
+
+// USSD callback route (no auth required)
+Route::match(['get', 'post'], '/ussd/callback', [UssdController::class, 'callback'])->name('ussd.callback');
+
+// USSD test routes (for debugging)
+Route::post('/ussd/test', [\App\Http\Controllers\UssdTestController::class, 'test'])->name('ussd.test');
+Route::post('/ussd/debug', [\App\Http\Controllers\UssdTestController::class, 'debug'])->name('ussd.debug');
 
 // M-Pesa callback routes (no auth required)
 Route::prefix('mpesa')->group(function () {
