@@ -32,8 +32,8 @@
     <div class="flex">
         <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
             <div class="p-6">
-                <div class="flex items-center mb-8">
-                    <i class="fas fa-building text-3xl mr-3"></i>
+                <div class="flex items-center mb-8 space-x-2">
+                    <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">           
                     <h2 class="text-xl font-bold">Rental</h2>
                 </div>
                 <nav class="space-y-2">
@@ -196,25 +196,106 @@
                         <div class="bg-white rounded-lg shadow-sm border mt-6">
                             <div class="p-6 border-b">
                                 <h3 class="text-lg font-semibold text-gray-800">UPCOMING PAYMENTS</h3>
+                                <p class="text-sm text-gray-500 mt-1">Next rent payments due from tenants</p>
                             </div>
                             <div class="p-6">
-                                @if(empty($upcoming_payments))
+                                @if(empty($upcoming_payments) || count($upcoming_payments) === 0)
                                     <div class="text-center py-8 text-gray-500">
-                                        <i class="fas fa-calendar text-4xl mb-4"></i>
-                                        <p>No upcoming payments</p>
+                                        <div class="bg-gradient-to-r from-green-100 to-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <i class="fas fa-calendar-check text-3xl text-green-600"></i>
+                                        </div>
+                                        <p class="text-lg font-medium mb-2">No upcoming payments</p>
+                                        <p class="text-sm text-gray-400">All tenants are up to date</p>
                                     </div>
                                 @else
-                                    @foreach($upcoming_payments as $payment)
-                                        <div class="flex items-center justify-between py-3 border-b last:border-b-0">
-                                            <div>
-                                                <p class="font-medium text-gray-800">{{ $payment['tenant'] }}</p>
-                                                <p class="text-sm text-gray-500">Due: {{ $payment['due_date'] }}</p>
+                                    <div class="space-y-4">
+                                        @foreach($upcoming_payments as $payment)
+                                            <div class="border rounded-lg p-4 hover:bg-gray-50 transition duration-200
+                                                {{ $payment['urgency'] === 'high' ? 'border-red-200 bg-red-50' : 
+                                                   ($payment['urgency'] === 'medium' ? 'border-yellow-200 bg-yellow-50' : 'border-gray-200') }}">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center mb-2">
+                                                            <h4 class="font-medium text-gray-900 mr-2">{{ $payment['tenant_name'] }}</h4>
+                                                            @if($payment['urgency'] === 'high')
+                                                                <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                                                                    Urgent
+                                                                </span>
+                                                            @elseif($payment['urgency'] === 'medium')
+                                                                <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                                                                    Due Soon
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                        <div class="text-sm text-gray-600 space-y-1">
+                                                            <div class="flex items-center">
+                                                                <i class="fas fa-building text-gray-400 w-4 mr-2"></i>
+                                                                <span>{{ $payment['property_name'] }} - Unit {{ $payment['unit_number'] }}</span>
+                                                            </div>
+                                                            <div class="flex items-center">
+                                                                <i class="fas fa-calendar text-gray-400 w-4 mr-2"></i>
+                                                                <span>Due: {{ $payment['due_date']->format('M d, Y') }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-right ml-4">
+                                                        <div class="text-lg font-bold text-green-600 mb-1">
+                                                            KSh {{ number_format($payment['amount']) }}
+                                                        </div>
+                                                        <div class="text-sm font-medium
+                                                            {{ $payment['days_remaining'] <= 0 ? 'text-red-600' : 
+                                                               ($payment['days_remaining'] <= 3 ? 'text-orange-600' : 'text-blue-600') }}">
+                                                            @if($payment['days_remaining'] <= 0)
+                                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                                Overdue
+                                                            @elseif($payment['days_remaining'] == 1)
+                                                                <i class="fas fa-clock mr-1"></i>
+                                                                Due Tomorrow
+                                                            @elseif($payment['days_remaining'] <= 7)
+                                                                <i class="fas fa-clock mr-1"></i>
+                                                                {{ $payment['days_remaining'] }} days left
+                                                            @else
+                                                                <i class="fas fa-calendar mr-1"></i>
+                                                                {{ $payment['days_remaining'] }} days left
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                @if($payment['days_remaining'] <= 7)
+                                                    <div class="mt-3 pt-3 border-t border-gray-200">
+                                                        <div class="flex items-center justify-between text-xs">
+                                                            <span class="text-gray-500">Payment Progress</span>
+                                                            <span class="font-medium
+                                                                {{ $payment['days_remaining'] <= 0 ? 'text-red-600' : 
+                                                                   ($payment['days_remaining'] <= 3 ? 'text-orange-600' : 'text-blue-600') }}">
+                                                                {{ $payment['days_remaining'] <= 0 ? 'Overdue' : $payment['days_remaining'] . ' days remaining' }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                                            @php
+                                                                $progress = $payment['days_remaining'] <= 0 ? 100 : 
+                                                                           (30 - $payment['days_remaining']) / 30 * 100;
+                                                                $progressColor = $payment['days_remaining'] <= 0 ? 'bg-red-500' : 
+                                                                               ($payment['days_remaining'] <= 3 ? 'bg-orange-500' : 'bg-blue-500');
+                                                            @endphp
+                                                            <div class="h-2 rounded-full {{ $progressColor }}" 
+                                                                 style="width: {{ min(100, max(0, $progress)) }}%"></div>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
-                                            <div class="text-right">
-                                                <p class="font-bold text-green-600">KSh {{ number_format($payment['amount']) }}</p>
-                                            </div>
+                                        @endforeach
+                                    </div>
+                                    
+                                    @if(count($upcoming_payments) >= 5)
+                                        <div class="mt-4 text-center">
+                                            <a href="{{ route('landlord.payments.index') }}" 
+                                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                View all upcoming payments →
+                                            </a>
                                         </div>
-                                    @endforeach
+                                    @endif
                                 @endif
                             </div>
                         </div>
@@ -243,7 +324,7 @@
                                     <i class="fas fa-money-bill mr-2"></i>
                                     RECORD PAYMENT
                                 </button>
-                                <button class="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition duration-200">
+                                <button onclick="window.location='{{ route('landlord.payments.request') }}'" class="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition duration-200">
                                     <i class="fas fa-paper-plane mr-2"></i>
                                     SEND PAYMENT REQUEST
                                 </button>

@@ -7,18 +7,32 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <body class="bg-gray-900">
         @include('partials.header')
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="bg-white rounded-xl shadow-lg p-8">
-                <h1 class="text-4xl font-bold text-gray-900 mb-8 text-center">Contact Us</h1>
-                
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8 text-center">Contact Us</h1>
                 <div class="grid md:grid-cols-2 gap-12">
                     <!-- Contact Form -->
                     <div>
-                        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Send us a Message</h2>
-                        <form action="#" method="POST" class="space-y-6">
+                        <h2 class="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">Send us a Message</h2>
+                        <form action="{{ route('contact.submit') }}" method="POST" class="space-y-6">
                             @csrf
                             <div>
                                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
@@ -56,7 +70,7 @@
                     <!-- Contact Information -->
                     <div class="space-y-8">
                         <div>
-                            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Get in Touch</h2>
+                            <h2 class="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">Get in Touch</h2>
                             <p class="text-gray-700 mb-6">
                                 Have questions or need assistance? Our team is here to help you with any inquiries 
                                 about our rental management platform.
@@ -69,7 +83,7 @@
                                     <i class="fas fa-map-marker-alt text-blue-600"></i>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-gray-900">Our Office</h3>
+                                    <h3 class="text-lg font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Our Office</h3>
                                     <p class="mt-1 text-gray-600">123 Rental Street, Nairobi, Kenya</p>
                                 </div>
                             </div>
@@ -79,7 +93,7 @@
                                     <i class="fas fa-phone-alt text-blue-600"></i>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-gray-900">Phone</h3>
+                                    <h3 class="text-lg font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Phone</h3>
                                     <p class="mt-1 text-gray-600">+254 700 000000</p>
                                     <p class="text-gray-600">Mon - Fri, 9:00 AM - 5:00 PM</p>
                                 </div>
@@ -90,7 +104,7 @@
                                     <i class="fas fa-envelope text-blue-600"></i>
                                 </div>
                                 <div class="ml-4">
-                                    <h3 class="text-lg font-medium text-gray-900">Email</h3>
+                                    <h3 class="text-lg font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Email</h3>
                                     <p class="mt-1 text-gray-600">info@rentalplatform.com</p>
                                     <p class="text-gray-600">support@rentalplatform.com</p>
                                 </div>
@@ -98,7 +112,7 @@
                         </div>
                         
                         <div class="pt-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-3">Follow Us</h3>
+                            <h3 class="text-lg font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">Follow Us</h3>
                             <div class="flex space-x-4">
                                 <a href="#" class="text-gray-600 hover:text-blue-600">
                                     <i class="fab fa-facebook-f text-2xl"></i>

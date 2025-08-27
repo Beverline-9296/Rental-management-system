@@ -38,6 +38,18 @@
                         <input type="tel" name="phone_number" id="phone_number" value="{{ old('phone_number', $tenant->phone_number) }}" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
+
+                    <div>
+                        <label for="id_number" class="block text-sm font-medium text-gray-700">ID Number *</label>
+                        <input type="text" name="id_number" id="id_number" value="{{ old('id_number', $tenant->id_number) }}" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700">Address *</label>
+                        <textarea name="address" id="address" rows="3" required
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('address', $tenant->address) }}</textarea>
+                    </div>
                 </div>
 
                 <!-- Emergency Contact -->

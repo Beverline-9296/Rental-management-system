@@ -32,8 +32,8 @@
         <!-- Sidebar -->
         <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
             <div class="p-6">
-                <div class="flex items-center mb-8">
-                    <i class="fas fa-building text-3xl mr-3"></i>
+                <div class="flex items-center mb-8 space-x-2">
+                    <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
                     <h2 class="text-xl font-bold">Rental</h2>
                 </div>
                 <nav class="space-y-2">
@@ -210,16 +210,101 @@
                                         <p>No upcoming payments</p>
                                     </div>
                                 @else
-                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="font-medium text-gray-800">Rent Payment Due</p>
-                                                <p class="text-sm text-gray-500">Due: {{ $upcoming_payment['due_date'] }}</p>
+                                    @php
+                                        $bgColor = 'bg-yellow-50 border-yellow-200';
+                                        $textColor = 'text-yellow-800';
+                                        $amountColor = 'text-yellow-600';
+                                        $statusText = 'Due Soon';
+                                        
+                                        if ($upcoming_payment['urgency'] === 'overdue') {
+                                            $bgColor = 'bg-red-50 border-red-200';
+                                            $textColor = 'text-red-800';
+                                            $amountColor = 'text-red-600';
+                                            $statusText = 'Overdue';
+                                        } elseif ($upcoming_payment['urgency'] === 'high') {
+                                            $bgColor = 'bg-orange-50 border-orange-200';
+                                            $textColor = 'text-orange-800';
+                                            $amountColor = 'text-orange-600';
+                                            $statusText = 'Due Very Soon';
+                                        } elseif ($upcoming_payment['urgency'] === 'medium') {
+                                            $bgColor = 'bg-yellow-50 border-yellow-200';
+                                            $textColor = 'text-yellow-800';
+                                            $amountColor = 'text-yellow-600';
+                                            $statusText = 'Due Soon';
+                                        } else {
+                                            $bgColor = 'bg-blue-50 border-blue-200';
+                                            $textColor = 'text-blue-800';
+                                            $amountColor = 'text-blue-600';
+                                            $statusText = 'Upcoming';
+                                        }
+                                    @endphp
+                                    
+                                    <div class="border rounded-lg p-4 {{ $bgColor }}">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="flex-1">
+                                                <div class="flex items-center mb-1">
+                                                    <h4 class="font-semibold {{ $textColor }} mr-2">Rent Payment</h4>
+                                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $bgColor }} {{ $textColor }}">
+                                                        {{ $statusText }}
+                                                    </span>
+                                                </div>
+                                                <div class="text-sm text-gray-600 space-y-1">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-building text-gray-400 w-4 mr-2"></i>
+                                                        <span>{{ $upcoming_payment['property_name'] }} - Unit {{ $upcoming_payment['unit_number'] }}</span>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-calendar text-gray-400 w-4 mr-2"></i>
+                                                        <span>Due: {{ \Carbon\Carbon::parse($upcoming_payment['due_date'])->format('M j, Y') }}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <p class="text-2xl font-bold text-red-600">KSh {{ number_format($upcoming_payment['amount']) }}</p>
+                                            <div class="text-right ml-4">
+                                                <div class="text-lg font-bold {{ $amountColor }} mb-1">
+                                                    KSh {{ number_format($upcoming_payment['amount'], 0) }}
+                                                </div>
+                                                <div class="text-sm font-medium {{ $textColor }}">
+                                                    @if($upcoming_payment['days_remaining'] < 0)
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        {{ abs($upcoming_payment['days_remaining']) }} days overdue
+                                                    @elseif($upcoming_payment['days_remaining'] == 0)
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        Due Today
+                                                    @elseif($upcoming_payment['days_remaining'] == 1)
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        Due Tomorrow
+                                                    @else
+                                                        <i class="fas fa-calendar mr-1"></i>
+                                                        {{ $upcoming_payment['days_remaining'] }} days left
+                                                    @endif
+                                                </div>
+                                                <a href="{{ route('tenant.payments.make') }}" 
+                                                   class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                                    Make Payment
+                                                </a>
                                             </div>
                                         </div>
+                                        
+                                        @if($upcoming_payment['days_remaining'] <= 7)
+                                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                                <div class="flex items-center justify-between text-xs">
+                                                    <span class="text-gray-500">Payment Progress</span>
+                                                    <span class="font-medium {{ $textColor }}">
+                                                        {{ $upcoming_payment['days_remaining'] <= 0 ? 'Overdue' : $upcoming_payment['days_remaining'] . ' days remaining' }}
+                                                    </span>
+                                                </div>
+                                                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                                    @php
+                                                        $progress = $upcoming_payment['days_remaining'] <= 0 ? 100 : 
+                                                                   (30 - $upcoming_payment['days_remaining']) / 30 * 100;
+                                                        $progressColor = $upcoming_payment['days_remaining'] <= 0 ? 'bg-red-500' : 
+                                                                        ($upcoming_payment['days_remaining'] <= 3 ? 'bg-orange-500' : 'bg-blue-500');
+                                                    @endphp
+                                                    <div class="h-2 rounded-full {{ $progressColor }}" 
+                                                         style="width: {{ min(100, max(0, $progress)) }}%"></div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -304,6 +389,66 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Payment Requests Section -->
+                @if(!empty($payment_requests) && count($payment_requests) > 0)
+                    <div class="mb-8">
+                        <div class="glass-card rounded-2xl shadow-xl animate-fadeInUp" style="animation-delay: 0.3s;">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-3 text-red-600"></i>
+                                    Payment Requests
+                                </h3>
+                            </div>
+                            <div class="p-6">
+                                @foreach($payment_requests as $request)
+                                    <div class="border rounded-lg p-4 mb-4 last:mb-0 {{ $request->status === 'sent' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200' }}">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center mb-2">
+                                                    <h4 class="font-semibold text-gray-900 mr-2">Payment Request from {{ $request->landlord->name }}</h4>
+                                                    @if($request->status === 'sent')
+                                                        <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+                                                            New
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-sm text-gray-600 space-y-1">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-building text-gray-400 w-4 mr-2"></i>
+                                                        <span>{{ $request->property->name }} - Unit {{ $request->unit->unit_number }}</span>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-calendar text-gray-400 w-4 mr-2"></i>
+                                                        <span>Sent: {{ $request->created_at->format('M d, Y \a\t g:i A') }}</span>
+                                                    </div>
+                                                    @if($request->custom_message)
+                                                        <div class="flex items-start mt-2">
+                                                            <i class="fas fa-comment text-gray-400 w-4 mr-2 mt-0.5"></i>
+                                                            <span class="italic">"{{ $request->custom_message }}"</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="text-right ml-4">
+                                                <div class="text-lg font-bold text-red-600 mb-1">
+                                                    KSh {{ number_format($request->amount, 0) }}
+                                                </div>
+                                                <div class="text-sm text-gray-600">
+                                                    {{ ucfirst($request->message_type) }}
+                                                </div>
+                                                <a href="{{ route('tenant.payments.make') }}" 
+                                                   class="inline-block mt-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded transition-colors">
+                                                    Make Payment
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

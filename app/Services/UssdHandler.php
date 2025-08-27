@@ -212,7 +212,7 @@ class UssdHandler
                     return $this->initiatePayment($monthlyRent, 'monthly rent');
                 case '2':
                     // Custom amount
-                    return "CON Enter amount to pay:\n(Minimum: KES 100)";
+                    return "CON Enter amount to pay:\n(Minimum: KES 10)";
                 case '0':
                     return $this->mainMenu();
                 default:
@@ -224,8 +224,8 @@ class UssdHandler
             // Handle custom amount input
             $amount = intval($menuPath[2]);
             
-            if ($amount < 100) {
-                return "END Invalid amount. Minimum payment is KES 100.";
+            if ($amount < 10) {
+                return "END Invalid amount. Minimum payment is KES 10.";
             }
 
             return $this->initiatePayment($amount, 'custom amount');

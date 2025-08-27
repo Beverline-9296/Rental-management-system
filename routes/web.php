@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandlordController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\MpesaController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,8 @@ Route::get('/about', function () {
 Route::get('/contact', function () {
     return view('contact');
 });
+// Handle form submission (POST)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.submit');
 
 // M-Pesa Testing Dashboard (for development)
 Route::get('/mpesa-test', function () {
@@ -75,6 +78,8 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
     // Payment Management Routes
     Route::get('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'index'])->name('payments.index');
     Route::get('payments/create', [\App\Http\Controllers\Landlord\PaymentController::class, 'create'])->name('payments.create');
+    Route::get('payments/request', [\App\Http\Controllers\Landlord\PaymentController::class, 'showRequestForm'])->name('payments.request');
+    Route::post('payments/send-request', [\App\Http\Controllers\Landlord\PaymentController::class, 'sendRequest'])->name('payments.send-request');
     Route::post('payments', [\App\Http\Controllers\Landlord\PaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}', [\App\Http\Controllers\Landlord\PaymentController::class, 'show'])->name('payments.show');
 
@@ -100,6 +105,7 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::get('/messages', [TenantController::class, 'messages'])->name('messages');
     Route::get('/contact-landlord', [TenantController::class, 'contactLandlord'])->name('contact-landlord');
     Route::get('/settings', [TenantController::class, 'settings'])->name('settings');
+    Route::post('/settings', [TenantController::class, 'updateSettings'])->name('settings.update');
     Route::post('/make-payment', [TenantController::class, 'makePayment'])->name('make-payment');
     
     // Maintenance Routes

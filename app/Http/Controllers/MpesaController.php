@@ -106,9 +106,24 @@ class MpesaController extends Controller
      */
     public function callback(Request $request)
     {
-        Log::info('M-Pesa Callback Received: ', $request->all());
+        Log::info('M-Pesa Callback Received: ', [
+            'method' => $request->method(),
+            'data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
 
         try {
+            // Handle GET requests (for testing or sandbox verification)
+            if ($request->isMethod('GET')) {
+                Log::info('GET request to M-Pesa callback endpoint - likely for testing/verification');
+                return response()->json([
+                    'ResultCode' => 0, 
+                    'ResultDesc' => 'Callback endpoint is active',
+                    'message' => 'M-Pesa callback endpoint is working properly'
+                ]);
+            }
+
+            // Handle POST requests (actual M-Pesa callbacks)
             $callbackData = $request->all();
             
             if (!isset($callbackData['Body']['stkCallback'])) {
@@ -184,9 +199,23 @@ class MpesaController extends Controller
      */
     public function timeout(Request $request)
     {
-        Log::info('M-Pesa Timeout: ', $request->all());
+        Log::info('M-Pesa Timeout: ', [
+            'method' => $request->method(),
+            'data' => $request->all()
+        ]);
         
         try {
+            // Handle GET requests (for testing or verification)
+            if ($request->isMethod('GET')) {
+                Log::info('GET request to M-Pesa timeout endpoint - likely for testing/verification');
+                return response()->json([
+                    'ResultCode' => 0, 
+                    'ResultDesc' => 'Timeout endpoint is active',
+                    'message' => 'M-Pesa timeout endpoint is working properly'
+                ]);
+            }
+
+            // Handle POST requests (actual M-Pesa timeouts)
             $timeoutData = $request->all();
             
             if (isset($timeoutData['Body']['stkCallback']['CheckoutRequestID'])) {

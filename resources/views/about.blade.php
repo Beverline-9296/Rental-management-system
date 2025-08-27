@@ -6,13 +6,19 @@
         <title>About - Rental Management Platform</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+
+        <style>
+            h1{
+                color:#008080;
+             }
+        </style>
     </head>
-    <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <body class="bg-gray-900">
         @include('partials.header')
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h1 class="text-4xl font-bold text-gray-900 mb-6">About Rental Management Platform</h1>
+            <div class="bg-white rounded-xl shadow-lg p-8 ">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">About Rental Management Platform</h1>
                 
                 <div class="prose max-w-none">
                     <p class="text-lg text-gray-700 mb-6">
@@ -21,13 +27,13 @@
                         providing a seamless experience from property listing to rent collection.
                     </p>
                     
-                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Our Mission</h2>
+                    <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Our Mission</h2>
                     <p class="text-gray-700 mb-6">
                         To revolutionize the rental industry by providing an intuitive, efficient, and transparent 
                         platform that connects landlords with reliable tenants and simplifies property management.
                     </p>
                     
-                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Features</h2>
+                    <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Features</h2>
                     <ul class="list-disc pl-6 text-gray-700 space-y-2 mb-6">
                         <li>Easy property listing and management</li>
                         <li>Tenant screening and management</li>
@@ -37,7 +43,7 @@
                         <li>Real-time communication between landlords and tenants</li>
                     </ul>
                     
-                    <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Why Choose Us?</h2>
+                    <h2 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Why Choose Us?</h2>
                     <div class="grid md:grid-cols-2 gap-6 mb-8">
                         <div class="bg-blue-50 p-6 rounded-lg">
                             <h3 class="text-xl font-semibold text-blue-700 mb-3">For Landlords</h3>
@@ -57,7 +63,7 @@
                      <!-- Dashboard Preview -->
             <div class="bg-white rounded-xl shadow-lg p-8 mb-16">
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Role-Based Dashboards</h2>
+                    <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Role-Based Dashboards</h2>
                     <p class="text-gray-600">Tailored experiences for landlords and tenants</p>
                 </div>
                 

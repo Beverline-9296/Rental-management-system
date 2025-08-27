@@ -54,10 +54,11 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <div class="hidden md:flex md:flex-shrink-0">
+        <div class="hidden md:flex md:flex-shrink-0 min-h-screen">
             <div class="flex flex-col w-64 gradient-bg text-white shadow-2xl sidebar">
                 <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto">
-                    <div class="flex items-center flex-shrink-0 px-4">
+                    <div class="flex items-center flex-shrink-0 px-4 space-x-2">
+                        <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
                         <h2 class="text-lg font-semibold text-white">Landlord Panel</h2>
                     </div>
                     <div class="mt-5 flex-1 flex flex-col">
@@ -74,40 +75,31 @@
                                 <i class="fas fa-users mr-3 text-gray-400 group-hover:text-gray-500 {{ request()->routeIs('landlord.tenants.*') ? 'text-white' : '' }}"></i>
                                 Tenants
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
+                            <a href="{{ route('landlord.maintenance.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
+                                <i class="fas fa-tools mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Maintenance
+                            </a>
+                            <a href="{{ route('landlord.messages.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
+                                <i class="fas fa-envelope mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Messages
+                            </a>
+                            <a href="{{ route('landlord.payments.index') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
                                 <i class="fas fa-money-bill-wave mr-3 text-gray-400 group-hover:text-gray-500"></i>
                                 Payments
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
-                                <i class="fas fa-file-invoice-dollar mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                                Invoices
+                            <a href="{{ route('landlord.profile.edit') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
+                                <i class="fas fa-user mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Profile
                             </a>
-                            <a href="#" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
-                                <i class="fas fa-chart-line mr-3 text-gray-400 group-hover:text-gray-500"></i>
-                                Reports
+                            
+                            <a href="{{ route('landlord.settings') }}" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10">
+                                <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-gray-500"></i>
+                                Settings
                             </a>
                         </nav>
                     </div>
                 </div>
-                <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
-                    <a href="#" class="flex-shrink-0 w-full group block">
-                        <div class="flex items-center">
-                            <div>
-                                <div class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                    {{ Auth::user()->name }}
-                                </p>
-                                <p class="text-xs font-medium text-gray-500 group-hover:text-gray-700">
-                                    View profile
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                
             </div>
         </div>
 

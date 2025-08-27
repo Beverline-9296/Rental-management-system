@@ -26,6 +26,7 @@
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
     </style>
     @stack('styles')
 </head>
@@ -34,8 +35,8 @@
         <!-- Sidebar -->
         <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
             <div class="p-6">
-                <div class="flex items-center mb-8">
-                    <i class="fas fa-building text-3xl mr-3"></i>
+                <div class="flex items-center mb-8 space-x-2">
+                    <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
                     <h2 class="text-xl font-bold">Rental</h2>
                 </div>
                 <nav class="space-y-2">

@@ -80,6 +80,71 @@ class LandlordController extends Controller
             ];
         }
 
+        // Calculate upcoming payments with due dates and countdown
+        $upcomingPayments = [];
+        foreach ($assignments as $assignment) {
+            $tenant = $assignment->tenant;
+            if (!$tenant) continue;
+            
+            $today = now();
+            
+            // Get tenant's payment history to understand their payment pattern
+            $lastPayment = \App\Models\Payment::where('tenant_id', $tenant->id)
+                ->where('unit_id', $assignment->unit_id)
+                ->where('payment_type', 'rent')
+                ->orderBy('created_at', 'desc')
+                ->first();
+            
+            // Calculate next due date based on assignment start date and payment history
+            $startDate = $assignment->start_date ? $assignment->start_date->copy() : $today->copy()->subMonth();
+            
+            if ($lastPayment) {
+                // If there are payments, calculate next due date from last payment
+                $lastPaymentDate = $lastPayment->created_at->copy();
+                $nextDueDate = $lastPaymentDate->copy()->addMonth();
+                
+                // Adjust to the same day of month as assignment start date
+                $assignmentDay = $startDate->day;
+                $nextDueDate = $nextDueDate->startOfMonth()->addDays($assignmentDay - 1);
+            } else {
+                // If no payments yet, use assignment start date pattern
+                $assignmentDay = $startDate->day;
+                $currentMonth = $today->copy()->startOfMonth()->addDays($assignmentDay - 1);
+                
+                if ($today->greaterThan($currentMonth)) {
+                    // If we're past this month's due date, next payment is next month
+                    $nextDueDate = $today->copy()->addMonth()->startOfMonth()->addDays($assignmentDay - 1);
+                } else {
+                    // Payment is due this month
+                    $nextDueDate = $currentMonth;
+                }
+            }
+            
+            $daysRemaining = (int) $today->diffInDays($nextDueDate, false);
+            
+            // Only show if payment is due within next 45 days
+            if ($daysRemaining >= 0 && $daysRemaining <= 45) {
+                $upcomingPayments[] = [
+                    'tenant_name' => $tenant->name,
+                    'unit_number' => $assignment->unit->unit_number,
+                    'property_name' => $assignment->property->name,
+                    'amount' => $assignment->monthly_rent,
+                    'due_date' => $nextDueDate,
+                    'days_remaining' => $daysRemaining,
+                    'is_overdue' => $daysRemaining < 0,
+                    'urgency' => $daysRemaining <= 3 ? 'high' : ($daysRemaining <= 7 ? 'medium' : 'low')
+                ];
+            }
+        }
+        
+        // Sort by days remaining (most urgent first)
+        usort($upcomingPayments, function($a, $b) {
+            return $a['days_remaining'] <=> $b['days_remaining'];
+        });
+        
+        // Limit to top 5 upcoming payments
+        $upcomingPayments = array_slice($upcomingPayments, 0, 5);
+
         // Get recent activities for the authenticated user
         $userId = Auth::id();
         \Log::info('Fetching activities for user ID: ' . $userId);
@@ -129,7 +194,8 @@ class LandlordController extends Controller
             'total_tenants' => $total_tenants,
             'occupied_units' => $total_occupied_units,
             'sum_arrears' => $sum_arrears,
-            'recent_activities' => $mappedActivities
+            'recent_activities' => $mappedActivities,
+            'upcoming_payments' => $upcomingPayments
         ]);
     }
     
@@ -170,6 +236,7 @@ class LandlordController extends Controller
      */
     public function settings()
     {
-        return view('landlord.settings');
+        $user = Auth::user();
+        return view('landlord.settings', compact('user'));
     }
 }

@@ -83,8 +83,8 @@
         <header class="fixed top-0 left-0 right-0 bg-white bg-opacity-95 shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <i class="fas fa-building text-3xl text-blue-600 mr-3"></i>
+                    <div class="flex items-center space-x-2">
+                        <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
                         <h1 class="text-2xl font-bold text-gray-900">Rental</h1>
                     </div>
                     <a href="{{ url('/') }}" class="text-blue-600 hover:text-blue-700 transition duration-200">
