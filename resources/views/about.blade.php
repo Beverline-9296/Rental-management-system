@@ -11,6 +11,84 @@
             h1{
                 color:#008080;
              }
+
+            @keyframes fadeInUp {
+                from { 
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes slideInLeft {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+            
+            @keyframes pulse {
+                0%, 100% {
+                    transform: scale(1);
+                }
+                50% {
+                    transform: scale(1.05);
+                }
+            }
+            
+            @keyframes float {
+                0%, 100% {
+                    transform: translateY(0px);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+            
+            .animate-fadeInUp {
+                animation: fadeInUp 0.8s ease-out;
+            }
+            
+            .animate-slideInLeft {
+                animation: slideInLeft 0.8s ease-out;
+            }
+            
+            .animate-slideInRight {
+                animation: slideInRight 0.8s ease-out;
+            }
+            
+            .animate-pulse-slow {
+                animation: pulse 3s ease-in-out infinite;
+            }
+            
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            
+            .bg-buildings {
+                background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }
         </style>
     </head>
     <body class="bg-gray-900">

@@ -40,49 +40,42 @@
                     <h2 class="text-xl font-bold">Rental</h2>
                 </div>
                 <nav class="space-y-2">
-                    <a href="{{ route('tenant.dashboard') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.dashboard') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.dashboard') }}" class="flex items-center space-x-3 bg-white bg-opacity-20 text-white p-3 rounded-lg transition hover:bg-opacity-30">
                         <i class="fas fa-tachometer-alt w-5"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
-                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.payments.index') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
-                        <i class="fas fa-credit-card w-5"></i>
-                        <span>My Payments</span>
-                    </a>
-                    <a href="{{ route('tenant.payments.make') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.payments.make') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
-                        <i class="fas fa-mobile-alt w-5"></i>
-                        <span>Make Payment</span>
-                    </a>
-                    <a href="{{ route('tenant.unit-details') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.unit-details') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.unit-details') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-home w-5"></i>
                         <span>Unit Details</span>
                     </a>
-                    <a href="{{ route('tenant.maintenance.index') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.maintenance.*') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.maintenance.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-tools w-5"></i>
                         <span>Maintenance</span>
                     </a>
-                    <a href="{{ route('tenant.messages.index') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.messages.*') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-envelope w-5"></i>
                         <span>Messages</span>
                     </a>
-                    <a href="{{ route('tenant.contact-landlord') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.contact-landlord') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>My Payments Records</span>
+                    </a>
+                    <a href="{{ route('tenant.payments.make') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-credit-card w-5"></i>
+                        <span>Make Payment</span>
+                    </a>
+                    <a href="{{ route('tenant.contact-landlord') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-phone w-5"></i>
                         <span>Contact Landlord</span>
                     </a>
-                    <a href="{{ route('tenant.profile.edit') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.profile.*') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-user-cog w-5"></i>
                         <span>Profile</span>
                     </a>
-                    <a href="{{ route('tenant.settings') }}" class="flex items-center space-x-3 {{ request()->routeIs('tenant.settings') ? 'bg-white bg-opacity-20 text-white' : 'text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10' }} p-3 rounded-lg transition">
+                    <a href="{{ route('tenant.settings') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-cog w-5"></i>
                         <span>Settings</span>
                     </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition w-full">
-                            <i class="fas fa-sign-out-alt w-5"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
                 </nav>
             </div>
         </div>
