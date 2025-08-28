@@ -86,6 +86,26 @@
             <x-responsive-nav-link :href="route('landlord.tenants.index')" :active="request()->routeIs('landlord.tenants.*')">
                 {{ __('Tenants') }}
             </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('landlord.maintenance.index')" :active="request()->routeIs('landlord.maintenance.*')">
+                {{ __('maintainance') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('landlord.messages.index')" :active="request()->routeIs('landlord.messages.*')">
+                {{ __('messages') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('landlord.payments.index')" :active="request()->routeIs('landlord.payments.*')">
+                {{ __('payments') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
+                {{ __('profile') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('landlord.settings')" :active="request()->routeIs('landlord.settings')">
+                {{ __('settings') }}
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->
