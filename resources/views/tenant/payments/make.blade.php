@@ -82,10 +82,8 @@
                     <select name="payment_type" id="payment_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                         <option value="">Select payment type</option>
                         <option value="rent">🏠 Monthly Rent</option>
-                        <option value="deposit">💰 Security Deposit</option>
                         <option value="utility">⚡ Utility Bill</option>
                         <option value="maintenance">🔧 Maintenance Fee</option>
-                        <option value="other">📋 Other</option>
                     </select>
                     <p class="text-xs text-gray-600 mt-1">Choose what type of payment you're making</p>
                 </div>

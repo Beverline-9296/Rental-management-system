@@ -63,6 +63,7 @@
                     <th class="px-4 py-2">Property</th>
                     <th class="px-4 py-2">Unit</th>
                     <th class="px-4 py-2">Amount (KSh)</th>
+                    <th class="px-4 py-2">Type</th>
                     <th class="px-4 py-2">Method</th>
                     <th class="px-4 py-2">Recorded By</th>
                     <th class="px-4 py-2">Actions</th>
@@ -76,6 +77,17 @@
                     <td class="px-4 py-2">{{ $payment->property->name ?? '-' }}</td>
                     <td class="px-4 py-2">{{ $payment->unit->unit_number ?? '-' }}</td>
                     <td class="px-4 py-2">{{ number_format($payment->amount,2) }}</td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                            @if($payment->payment_type === 'rent') bg-green-100 text-green-800
+                            @elseif($payment->payment_type === 'deposit') bg-blue-100 text-blue-800
+                            @elseif($payment->payment_type === 'utility') bg-yellow-100 text-yellow-800
+                            @elseif($payment->payment_type === 'maintenance') bg-purple-100 text-purple-800
+                            @else bg-gray-100 text-gray-800
+                            @endif">
+                            {{ ucfirst($payment->payment_type ?? 'rent') }}
+                        </span>
+                    </td>
                     <td class="px-4 py-2">{{ $payment->payment_method ?? '-' }}</td>
                     <td class="px-4 py-2">{{ $payment->recordedBy->name ?? '-' }}</td>
                     <td class="px-4 py-2">
@@ -84,7 +96,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center py-6 text-gray-500">No payments recorded yet.</td>
+                    <td colspan="9" class="text-center py-6 text-gray-500">No payments recorded yet.</td>
                 </tr>
                 @endforelse
             </tbody>

@@ -162,13 +162,28 @@ class MpesaController extends Controller
                         'mpesa_transaction_id' => $transaction->id
                     ]);
 
+                    // Generate receipt automatically
+                    $receipt = \App\Http\Controllers\ReceiptController::generateFromPayment($payment);
+                    
+                    // Send receipt via email if tenant has email
+                    if ($payment->tenant->email) {
+                        try {
+                            \Mail::to($payment->tenant->email)->send(new \App\Mail\ReceiptMail($receipt));
+                            $receipt->update(['status' => 'sent']);
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send receipt email after M-Pesa payment: ' . $e->getMessage());
+                        }
+                    }
+
                     // Log the successful payment activity
                     ActivityLog::logActivity(
                         $transaction->tenant_id,
                         'payment_completed',
-                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa',
+                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa. Receipt #' . $receipt->receipt_number . ' generated.',
                         [
                             'payment_id' => $payment->id,
+                            'receipt_id' => $receipt->id,
+                            'receipt_number' => $receipt->receipt_number,
                             'amount' => $transaction->amount,
                             'method' => 'mpesa',
                             'receipt' => $transaction->mpesa_receipt_number,

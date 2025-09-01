@@ -128,6 +128,14 @@ Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->g
     Route::delete('messages/{message}', [\App\Http\Controllers\Tenant\MessageController::class, 'destroy'])->name('messages.destroy');
 });
 
+// Receipt Routes (Available to both landlords and tenants)
+Route::middleware('auth')->group(function () {
+    Route::get('/receipts', [\App\Http\Controllers\ReceiptController::class, 'index'])->name('receipts.index');
+    Route::get('/receipts/{receipt}', [\App\Http\Controllers\ReceiptController::class, 'show'])->name('receipts.show');
+    Route::get('/receipts/{receipt}/download', [\App\Http\Controllers\ReceiptController::class, 'downloadPdf'])->name('receipts.download');
+    Route::post('/receipts/{receipt}/resend-email', [\App\Http\Controllers\ReceiptController::class, 'resendEmail'])->name('receipts.resend-email');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

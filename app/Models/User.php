@@ -139,11 +139,28 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the total rent payments made by this tenant (excluding deposits)
+     * Get the total rent payments made by this tenant (excluding deposits, utilities, maintenance)
      */
     public function getTotalRentPaid()
     {
-        return $this->payments()->where('payment_type', 'rent')->sum('amount');
+        // Only count payments explicitly marked as 'rent' or NULL (for backward compatibility with old payments)
+        $total = $this->payments()
+            ->where(function($query) {
+                $query->where('payment_type', 'rent')
+                      ->orWhereNull('payment_type');
+            })
+            ->whereNotIn('payment_type', ['deposit', 'utility', 'maintenance'])
+            ->sum('amount');
+            
+        // Debug logging
+        \Log::info('Arrears Debug - getTotalRentPaid()', [
+            'tenant_id' => $this->id,
+            'tenant_name' => $this->name,
+            'total_rent_paid' => $total,
+            'excluded_types' => ['deposit', 'utility', 'maintenance']
+        ]);
+        
+        return $total;
     }
 
     /**
@@ -161,13 +178,46 @@ class User extends Authenticatable
     {
         $totalDue = 0;
         $today = now();
+        
         foreach ($this->tenantAssignments()->active()->get() as $assignment) {
-            // Calculate full months only for clean amounts
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue += $months * $assignment->monthly_rent;
+            $start = $assignment->start_date ? $assignment->start_date->copy() : null;
+            if (!$start) continue;
+            
+            // Calculate months elapsed since assignment started
+            $monthsElapsed = 0;
+            
+            // Start from assignment start date and count complete months
+            $currentDate = $start->copy();
+            while ($currentDate->lessThanOrEqualTo($today)) {
+                $monthsElapsed++;
+                $currentDate->addMonth();
+            }
+            
+            // Ensure at least 1 month if assignment has started
+            $monthsElapsed = max(1, $monthsElapsed);
+            
+            // Don't exceed assignment duration if there's an end date
+            if ($assignment->end_date && $assignment->end_date < $today) {
+                $maxMonths = $start->diffInMonths($assignment->end_date) + 1;
+                $monthsElapsed = min($monthsElapsed, $maxMonths);
+            }
+            
+            $calculatedDue = $monthsElapsed * $assignment->monthly_rent;
+            $totalDue += $calculatedDue;
+            
+            // Debug logging
+            \Log::info('Arrears Debug - getTotalDue()', [
+                'tenant_id' => $this->id,
+                'assignment_id' => $assignment->id,
+                'start_date' => $assignment->start_date,
+                'today' => $today->format('Y-m-d'),
+                'months_elapsed' => $monthsElapsed,
+                'monthly_rent' => $assignment->monthly_rent,
+                'calculated_due' => $calculatedDue,
+                'total_due' => $totalDue
+            ]);
         }
+        
         return $totalDue;
     }
 
@@ -176,7 +226,20 @@ class User extends Authenticatable
      */
     public function getArrears()
     {
-        return max(0, $this->getTotalDue() - $this->getTotalRentPaid());
+        $totalDue = $this->getTotalDue();
+        $totalRentPaid = $this->getTotalRentPaid();
+        $arrears = max(0, $totalDue - $totalRentPaid);
+        
+        // Debug logging
+        \Log::info('Arrears Debug - getArrears()', [
+            'tenant_id' => $this->id,
+            'tenant_name' => $this->name,
+            'total_due' => $totalDue,
+            'total_rent_paid' => $totalRentPaid,
+            'calculated_arrears' => $arrears
+        ]);
+        
+        return $arrears;
     }
 
     /**

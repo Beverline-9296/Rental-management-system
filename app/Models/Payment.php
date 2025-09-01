@@ -37,4 +37,9 @@ class Payment extends Model
     {
         return $this->belongsTo(MpesaTransaction::class, 'mpesa_transaction_id');
     }
+
+    public function receipt()
+    {
+        return $this->hasOne(Receipt::class);
+    }
 }

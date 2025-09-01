@@ -63,6 +63,10 @@
                         <i class="fas fa-credit-card w-5"></i>
                         <span>Make Payment</span>
                     </a>
+                    <a href="{{ route('receipts.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-receipt w-5"></i>
+                        <span>My Receipts</span>
+                    </a>
                     <a href="{{ route('tenant.contact-landlord') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-phone w-5"></i>
                         <span>Contact Landlord</span>

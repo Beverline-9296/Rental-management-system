@@ -57,20 +57,15 @@ class LandlordController extends Controller
         ->get();
 
         $sum_arrears = 0;
+        $processedTenants = [];
         foreach ($assignments as $assignment) {
             $tenant = $assignment->tenant;
-            if (!$tenant) continue;
-            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
-                ->where('unit_id', $assignment->unit_id)
-                ->where('payment_type', 'rent')
-                ->sum('amount');
-            $today = now();
-            // Calculate full months only for clean amounts
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue = $months * $assignment->monthly_rent;
-            $arrears = max(0, $totalDue - $totalPaid);
+            if (!$tenant || in_array($tenant->id, $processedTenants)) continue;
+            
+            $processedTenants[] = $tenant->id;
+            
+            // Use User model methods for consistent calculation
+            $arrears = $tenant->getArrears();
             $sum_arrears += $arrears;
             $tenantsSummary[] = [
                 'tenant' => $tenant,

@@ -24,27 +24,27 @@ class PaymentController extends Controller
             ->with(['tenant', 'unit', 'property'])
             ->get();
 
-        // Group by tenant and unit for summary
+        // Group by tenant for summary - use User model methods for consistency
         $tenantsSummary = [];
+        $processedTenants = [];
         foreach ($assignments as $assignment) {
             $tenant = $assignment->tenant;
-            if (!$tenant) continue;
-            $key = $tenant->id . '-' . $assignment->unit_id;
-            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
-                ->where('unit_id', $assignment->unit_id)
-                ->where('payment_type', 'rent')
-                ->sum('amount');
-            $today = now();
-            // Calculate full months only for clean amounts
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue = $months * $assignment->monthly_rent;
-            $arrears = max(0, $totalDue - $totalPaid);
-            $tenantsSummary[$key] = [
+            if (!$tenant || in_array($tenant->id, $processedTenants)) continue;
+            
+            $processedTenants[] = $tenant->id;
+            
+            // Use the same methods as tenant dashboard for consistency
+            $totalPaid = $tenant->getTotalRentPaid();
+            $totalDue = $tenant->getTotalDue();
+            $arrears = $tenant->getArrears();
+            
+            // Get primary assignment for display
+            $primaryAssignment = $tenant->tenantAssignments()->active()->first();
+            
+            $tenantsSummary[$tenant->id] = [
                 'tenant' => $tenant,
-                'property' => $assignment->property,
-                'unit' => $assignment->unit,
+                'property' => $primaryAssignment->property ?? $assignment->property,
+                'unit' => $primaryAssignment->unit ?? $assignment->unit,
                 'total_due' => $totalDue,
                 'total_paid' => $totalPaid,
                 'arrears' => $arrears,
@@ -70,11 +70,26 @@ class PaymentController extends Controller
             'amount' => 'required|numeric|min:1',
             'payment_date' => 'required|date',
             'payment_method' => 'nullable|string|max:100',
+            'payment_type' => 'required|string|in:rent,deposit,utility,maintenance,other',
             'notes' => 'nullable|string|max:1000',
         ]);
         $validated['recorded_by'] = auth()->id();
         $payment = \App\Models\Payment::create($validated);
-        return redirect()->route('landlord.payments.index')->with('success', 'Payment recorded successfully.');
+        
+        // Generate receipt automatically
+        $receipt = \App\Http\Controllers\ReceiptController::generateFromPayment($payment);
+        
+        // Send receipt via email if tenant has email
+        if ($payment->tenant->email) {
+            try {
+                \Mail::to($payment->tenant->email)->send(new \App\Mail\ReceiptMail($receipt));
+                $receipt->update(['status' => 'sent']);
+            } catch (\Exception $e) {
+                \Log::error('Failed to send receipt email after manual payment: ' . $e->getMessage());
+            }
+        }
+        
+        return redirect()->route('landlord.payments.index')->with('success', 'Payment recorded successfully. Receipt #' . $receipt->receipt_number . ' generated.');
     }
 
     public function show($id)
@@ -105,18 +120,8 @@ class PaymentController extends Controller
             $tenant = $assignment->tenant;
             if (!$tenant) continue;
 
-            // Calculate arrears and next due date
-            $totalPaid = \App\Models\Payment::where('tenant_id', $tenant->id)
-                ->where('unit_id', $assignment->unit_id)
-                ->where('payment_type', 'rent')
-                ->sum('amount');
-
-            $today = now();
-            $start = $assignment->start_date ? $assignment->start_date->copy()->startOfMonth() : null;
-            $end = $assignment->end_date && $assignment->end_date < $today ? $assignment->end_date->copy()->startOfMonth() : $today->copy()->startOfMonth();
-            $months = $start ? $start->diffInMonths($end) + 1 : 0;
-            $totalDue = $months * $assignment->monthly_rent;
-            $arrears = max(0, $totalDue - $totalPaid);
+            // Use User model methods for consistent arrears calculation
+            $arrears = $tenant->getArrears();
 
             // Calculate next due date
             $lastPayment = \App\Models\Payment::where('tenant_id', $tenant->id)

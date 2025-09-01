@@ -86,6 +86,10 @@
                         <i class="fas fa-credit-card w-5"></i>
                         <span>Payments</span>
                     </a>
+                    <a href="{{ route('receipts.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
+                        <i class="fas fa-receipt w-5"></i>
+                        <span>Receipts</span>
+                    </a>
                     <a href="{{ route('landlord.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
                         <i class="fas fa-user-cog w-5"></i>
                         <span>Profile</span>
