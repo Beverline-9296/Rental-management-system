@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Property;
 use App\Models\ActivityLog;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -232,6 +233,78 @@ class LandlordController extends Controller
     public function settings()
     {
         $user = Auth::user();
-        return view('landlord.settings', compact('user'));
+        $theme = Setting::getUserSetting($user->id, 'theme', 'light');
+        return view('landlord.settings', compact('user', 'theme'));
+    }
+
+    /**
+     * Update landlord settings
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validate the request
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'theme' => 'nullable|in:light,dark',
+        ]);
+        
+        // Update user information
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->phone_number = $validated['phone'];
+        $user->save();
+        
+        // Update theme setting if provided
+        if (isset($validated['theme'])) {
+            Setting::setUserSetting($user->id, 'theme', $validated['theme']);
+        }
+        
+        // Log the profile update activity
+        ActivityLog::logActivity(
+            $user->id,
+            'profile_updated',
+            'Profile information updated',
+            [
+                'updated_fields' => array_keys($validated)
+            ],
+            'fas fa-user-edit',
+            'blue'
+        );
+        
+        return redirect()->route('landlord.settings')->with('success', 'Settings updated successfully!');
+    }
+
+    /**
+     * Update theme setting
+     */
+    public function updateTheme(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Validate the theme value
+        $validated = $request->validate([
+            'theme' => 'required|in:light,dark',
+        ]);
+        
+        // Update theme setting
+        Setting::setUserSetting($user->id, 'theme', $validated['theme']);
+        
+        // Log the theme change activity
+        ActivityLog::logActivity(
+            $user->id,
+            'theme_updated',
+            'Theme preference updated to ' . $validated['theme'] . ' mode',
+            [
+                'theme' => $validated['theme']
+            ],
+            'fas fa-palette',
+            'purple'
+        );
+        
+        return redirect()->route('landlord.settings')->with('success', 'Theme updated successfully!');
     }
 }

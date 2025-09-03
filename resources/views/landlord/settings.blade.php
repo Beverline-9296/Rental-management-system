@@ -18,9 +18,8 @@
             </div>
             
             <div class="p-6">
-                <form method="post" action="{{ route('profile.update') }}" class="space-y-6">
+                <form method="post" action="{{ route('landlord.settings.update') }}" class="space-y-6">
                     @csrf
-                    @method('patch')
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -45,7 +44,7 @@
 
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" 
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone_number) }}" 
                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
                                    autocomplete="tel">
                             @error('phone')
@@ -53,14 +52,6 @@
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="national_id" class="block text-sm font-medium text-gray-700 mb-2">National ID</label>
-                            <input type="text" id="national_id" name="national_id" value="{{ old('national_id', $user->national_id) }}" 
-                                   class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            @error('national_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
                     </div>
 
                     @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
@@ -88,6 +79,36 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Theme Preferences -->
+        <div class="glass-card rounded-xl shadow-lg mb-8 animate-fadeInUp" style="animation-delay: 0.05s;">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-palette text-blue-600 mr-2"></i>
+                    Theme Preferences
+                </h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-base font-medium text-gray-900">Dark Mode</h4>
+                        <p class="text-sm text-gray-600">Switch between light and dark theme</p>
+                    </div>
+                    <form method="post" action="{{ route('landlord.settings.theme') }}" id="themeForm">
+                        @csrf
+                        <input type="hidden" name="theme" id="themeInput" value="{{ $theme === 'dark' ? 'light' : 'dark' }}">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   {{ $theme === 'dark' ? 'checked' : '' }}
+                                   class="sr-only peer"
+                                   onchange="toggleTheme()">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -388,6 +409,18 @@ function confirmDelete() {
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.add('hidden');
     document.getElementById('deleteModal').classList.remove('flex');
+}
+
+function toggleTheme() {
+    const form = document.getElementById('themeForm');
+    const input = document.getElementById('themeInput');
+    const checkbox = form.querySelector('input[type="checkbox"]');
+    
+    // Update hidden input value based on checkbox state
+    input.value = checkbox.checked ? 'dark' : 'light';
+    
+    // Submit the form
+    form.submit();
 }
 </script>
 @endsection

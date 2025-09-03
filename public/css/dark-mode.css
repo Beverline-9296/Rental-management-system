@@ -1,0 +1,429 @@
+/* Dark Mode Styles */
+.dark {
+    /* Background colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --bg-card: #2d2d2d;
+    --bg-glass: rgba(45, 45, 45, 0.9);
+    
+    /* Text colors */
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    
+    /* Border colors */
+    --border-primary: #404040;
+    --border-secondary: #525252;
+    
+    /* Accent colors */
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+}
+
+/* Dark mode html and body */
+.dark,
+.dark html,
+.dark body {
+    background: #1a1a1a !important;
+    color: var(--text-primary) !important;
+}
+
+/* Override any light backgrounds - comprehensive list */
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-white,
+.dark .bg-slate-50,
+.dark .bg-stone-50,
+.dark .bg-neutral-50,
+.dark .bg-zinc-50,
+.dark .bg-blue-50,
+.dark .bg-green-50,
+.dark .bg-yellow-50,
+.dark .bg-red-50,
+.dark .bg-purple-50,
+.dark .bg-pink-50,
+.dark .bg-indigo-50,
+.dark .bg-teal-50,
+.dark .bg-orange-50 {
+    background: var(--bg-primary) !important;
+    color: #ffffff !important;
+}
+
+/* Universal background override for any remaining light backgrounds */
+.dark [class*="bg-gray-"],
+.dark [class*="bg-white"],
+.dark [class*="bg-slate-"],
+.dark [class*="bg-stone-"],
+.dark [class*="bg-neutral-"],
+.dark [class*="bg-zinc-"] {
+    background: var(--bg-primary) !important;
+    color: #ffffff !important;
+}
+
+/* Dark mode main content area */
+.dark .flex-1,
+.dark main,
+.dark .main-content {
+    background: var(--bg-primary) !important;
+}
+
+/* Force dark background on common layout elements */
+.dark .min-h-screen,
+.dark .h-screen,
+.dark .w-full {
+    background: var(--bg-primary) !important;
+}
+
+/* Dark mode sidebar */
+.dark .gradient-bg {
+    background: linear-gradient(135deg, #2d2d2d 0%, #404040 100%) !important;
+}
+
+/* Dark mode cards */
+.dark .glass-card,
+.dark .bg-white {
+    background: var(--bg-glass) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-primary);
+    color: #ffffff !important;
+}
+
+/* Dashboard cards and activity items */
+.dark .glass-card * {
+    color: #ffffff !important;
+}
+
+.dark .bg-white * {
+    color: #ffffff !important;
+}
+
+/* Activity log items */
+.dark .flex.items-center.space-x-4 {
+    color: #ffffff !important;
+}
+
+.dark .flex.items-center.space-x-4 * {
+    color: #ffffff !important;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+    color: #ffffff !important;
+}
+
+.dark .text-gray-800 {
+    color: #f3f4f6 !important;
+}
+
+.dark .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+.dark .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+.dark .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+.dark .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+/* Dark mode specific text elements */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff !important;
+}
+
+.dark p {
+    color: #e5e7eb !important;
+}
+
+.dark span {
+    color: #e5e7eb !important;
+}
+
+.dark .text-white {
+    color: #ffffff !important;
+}
+
+.dark .text-black {
+    color: #ffffff !important;
+}
+
+/* Dark mode backgrounds - Override all light backgrounds */
+.dark .bg-gradient-to-br,
+.dark .bg-gradient-to-br.from-blue-50.via-white.to-green-50,
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200,
+.dark .bg-white,
+.dark .bg-slate-50,
+.dark .bg-stone-50,
+.dark .bg-neutral-50,
+.dark .bg-zinc-50 {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Dashboard specific dark mode styles */
+.dark .bg-gradient-to-br.from-blue-50.via-white.to-green-50 {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%) !important;
+}
+
+.dark .bg-blue-600 {
+    background: var(--accent-blue) !important;
+}
+
+.dark .bg-green-600 {
+    background: var(--accent-green) !important;
+}
+
+.dark .bg-purple-600 {
+    background: #8b5cf6 !important;
+}
+
+.dark .bg-indigo-600 {
+    background: #6366f1 !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-green-50,
+.dark .bg-yellow-50,
+.dark .bg-red-50 {
+    background: var(--bg-secondary) !important;
+}
+
+/* Dark mode borders */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+    border-color: var(--border-primary) !important;
+}
+
+/* Dark mode inputs */
+.dark input,
+.dark select,
+.dark textarea {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    border-color: var(--accent-blue) !important;
+    box-shadow: 0 0 0 1px var(--accent-blue) !important;
+}
+
+/* Dark mode buttons */
+.dark .bg-gradient-to-r {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)) !important;
+}
+
+.dark .bg-red-600 {
+    background: var(--accent-red) !important;
+}
+
+.dark .bg-yellow-600 {
+    background: var(--accent-yellow) !important;
+}
+
+/* Dark mode navigation */
+.dark nav,
+.dark .navbar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* Dark mode tables */
+.dark table {
+    background: var(--bg-card) !important;
+}
+
+.dark th {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark td {
+    border-color: var(--border-primary) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Dark mode modals */
+.dark .modal,
+.dark .fixed.inset-0 > div {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-primary);
+}
+
+/* Dark mode alerts */
+.dark .bg-green-500 {
+    background: var(--accent-green) !important;
+}
+
+.dark .bg-red-500 {
+    background: var(--accent-red) !important;
+}
+
+.dark .bg-yellow-500 {
+    background: var(--accent-yellow) !important;
+}
+
+/* Dark mode dashboard cards */
+.dark .dashboard-card {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary);
+}
+
+/* Dark mode sidebar */
+.dark .sidebar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+.dark .sidebar a {
+    color: var(--text-secondary) !important;
+}
+
+.dark .sidebar a:hover {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode dropdown */
+.dark .dropdown-menu {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-primary);
+}
+
+.dark .dropdown-item {
+    color: var(--text-secondary) !important;
+}
+
+.dark .dropdown-item:hover {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode toggle switch */
+.dark .peer-checked\:bg-blue-600 {
+    background-color: var(--accent-blue) !important;
+}
+
+/* Dark mode gradient text - Override transparent text */
+.dark .bg-gradient-to-r.bg-clip-text {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Specific gradient text elements */
+.dark .text-3xl.font-bold.bg-gradient-to-r {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Any element with gradient text class */
+.dark [class*="bg-gradient-to-r"][class*="bg-clip-text"] {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Welcome text and headings with gradients */
+.dark .bg-gradient-to-r.from-blue-600.to-green-600.bg-clip-text {
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Dashboard specific elements */
+.dark .bg-gray-900 {
+    background: var(--bg-primary) !important;
+    color: #ffffff !important;
+}
+
+.dark .bg-gray-800 {
+    background: var(--bg-secondary) !important;
+    color: #ffffff !important;
+}
+
+.dark .bg-gray-700 {
+    background: var(--bg-tertiary) !important;
+    color: #ffffff !important;
+}
+
+/* Time stamps and small text */
+.dark .text-xs {
+    color: #9ca3af !important;
+}
+
+.dark .text-sm {
+    color: #d1d5db !important;
+}
+
+/* Activity feed items */
+.dark .rounded-lg.p-4 {
+    background: var(--bg-secondary) !important;
+    color: #ffffff !important;
+}
+
+.dark .rounded-lg.p-4 * {
+    color: #ffffff !important;
+}
+
+/* Quick info section */
+.dark .text-right {
+    color: #ffffff !important;
+}
+
+/* Balance and amount text */
+.dark .font-bold {
+    color: #ffffff !important;
+}
+
+.dark .font-semibold {
+    color: #ffffff !important;
+}
+
+.dark .font-medium {
+    color: #ffffff !important;
+}
+
+/* Override any transparent text in dark mode */
+.dark * {
+    -webkit-text-fill-color: unset !important;
+}
+
+/* Ensure all text elements are visible in dark mode */
+.dark .text-transparent {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Fix for any remaining invisible text */
+.dark [style*="-webkit-text-fill-color: transparent"] {
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* Smooth transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

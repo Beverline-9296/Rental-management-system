@@ -67,6 +67,8 @@ class UssdHandler
                     return $this->handleRentPaymentMenu($menuPath);
                 case '4':
                     return $this->handleContactMenu();
+                case '5':
+                    return $this->handlePaymentHistoryMenu($menuPath);
                 case '0':
                     return $this->exitMenu();
                 default:
@@ -100,6 +102,7 @@ class UssdHandler
         $response .= "2. Last Payment\n";
         $response .= "3. Pay Rent\n";
         $response .= "4. Contact Info\n";
+        $response .= "5. Payment History\n";
         $response .= "0. Exit";
 
         return $response;
@@ -229,6 +232,45 @@ class UssdHandler
             }
 
             return $this->initiatePayment($amount, 'custom amount');
+        }
+
+        return $this->invalidOptionMenu();
+    }
+
+    /**
+     * Handle payment history menu
+     */
+    private function handlePaymentHistoryMenu($menuPath)
+    {
+        if (count($menuPath) == 1) {
+            // Show payment history options
+            $response = "CON PAYMENT HISTORY\n";
+            $response .= "1. Last 5 Payments\n";
+            $response .= "2. Last 10 Payments\n";
+            $response .= "3. Current Year\n";
+            $response .= "4. All Payments\n";
+            $response .= "0. Back to Main Menu";
+
+            return $response;
+        }
+
+        if (count($menuPath) == 2) {
+            $option = $menuPath[1];
+
+            switch ($option) {
+                case '1':
+                    return $this->showPaymentHistory(5);
+                case '2':
+                    return $this->showPaymentHistory(10);
+                case '3':
+                    return $this->showPaymentHistoryByYear(Carbon::now()->year);
+                case '4':
+                    return $this->showPaymentHistory(null); // All payments
+                case '0':
+                    return $this->mainMenu();
+                default:
+                    return $this->invalidOptionMenu();
+            }
         }
 
         return $this->invalidOptionMenu();
@@ -404,6 +446,95 @@ class UssdHandler
                 $query->where('status', 'active')->with(['unit.property.landlord']);
             }])
             ->first();
+    }
+
+    /**
+     * Show payment history with optional limit
+     */
+    private function showPaymentHistory($limit = null)
+    {
+        $query = $this->user->payments()
+            ->where('payment_type', 'rent')
+            ->orderByDesc('payment_date')
+            ->with('mpesaTransaction');
+
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $payments = $query->get();
+
+        if ($payments->isEmpty()) {
+            return "END No payment records found.";
+        }
+
+        $response = "END PAYMENT HISTORY\n";
+        $response .= "Total Records: " . $payments->count() . "\n\n";
+
+        foreach ($payments as $index => $payment) {
+            $response .= ($index + 1) . ". " . $payment->payment_date->format('M d, Y') . "\n";
+            $response .= "   Amount: KES " . number_format($payment->amount) . "\n";
+            $response .= "   Method: " . ucfirst($payment->payment_method) . "\n";
+            
+            if ($payment->mpesaTransaction) {
+                $response .= "   Ref: " . $payment->mpesaTransaction->mpesa_receipt_number . "\n";
+                $response .= "   Status: " . ucfirst($payment->mpesaTransaction->status) . "\n";
+            } else {
+                $response .= "   Ref: Manual Payment\n";
+                $response .= "   Status: Completed\n";
+            }
+            
+            // Add separator for readability, but keep within USSD limits
+            if ($index < $payments->count() - 1) {
+                $response .= "\n";
+            }
+        }
+
+        // Calculate total amount paid
+        $totalPaid = $payments->sum('amount');
+        $response .= "\nTotal Paid: KES " . number_format($totalPaid);
+
+        return $response;
+    }
+
+    /**
+     * Show payment history for specific year
+     */
+    private function showPaymentHistoryByYear($year)
+    {
+        $payments = $this->user->payments()
+            ->where('payment_type', 'rent')
+            ->whereYear('payment_date', $year)
+            ->orderByDesc('payment_date')
+            ->with('mpesaTransaction')
+            ->get();
+
+        if ($payments->isEmpty()) {
+            return "END No payment records found for year {$year}.";
+        }
+
+        $response = "END PAYMENT HISTORY - {$year}\n";
+        $response .= "Records: " . $payments->count() . "\n\n";
+
+        foreach ($payments as $index => $payment) {
+            $response .= ($index + 1) . ". " . $payment->payment_date->format('M d') . "\n";
+            $response .= "   KES " . number_format($payment->amount) . "\n";
+            $response .= "   " . ucfirst($payment->payment_method) . "\n";
+            
+            if ($payment->mpesaTransaction && $payment->mpesaTransaction->mpesa_receipt_number) {
+                $response .= "   " . $payment->mpesaTransaction->mpesa_receipt_number . "\n";
+            }
+            
+            if ($index < $payments->count() - 1) {
+                $response .= "\n";
+            }
+        }
+
+        // Calculate total for the year
+        $totalPaid = $payments->sum('amount');
+        $response .= "\nYear Total: KES " . number_format($totalPaid);
+
+        return $response;
     }
 
     /**

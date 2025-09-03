@@ -81,6 +81,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's settings
+     */
+    public function settings()
+    {
+        return $this->hasMany(Setting::class);
+    }
+
+    /**
      * Get the tenant assignments for the user
      */
     public function tenantAssignments()

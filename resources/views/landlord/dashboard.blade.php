@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landlord Dashboard - Rental</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+@extends('landlord.layouts.app')
+
+@section('title', 'Landlord Dashboard')
+
+@section('content')
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -27,63 +24,11 @@
         }
     </style>
 </head>
+
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
     <!-- Sidebar -->
     <div class="flex">
-        <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
-            <div class="p-6">
-                <div class="flex items-center mb-8 space-x-2">
-                    <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">           
-                    <h2 class="text-xl font-bold">Rental</h2>
-                </div>
-                <nav class="space-y-2">
-                    <a href="{{ route('landlord.dashboard') }}" class="flex items-center space-x-3 bg-white bg-opacity-20 text-white p-3 rounded-lg transition hover:bg-opacity-30">
-                        <i class="fas fa-tachometer-alt w-5"></i>
-                        <span class="font-medium">Dashboard</span>
-                    </a>
-                    <a href="{{ route('landlord.properties.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-building w-5"></i>
-                        <span>Properties</span>
-                    </a>
-                    <a href="{{ route('landlord.tenants.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-users w-5"></i>
-                        <span>Tenants</span>
-                    </a>
-                    <a href="{{ route('landlord.maintenance.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-tools w-5"></i>
-                        <span>Maintenance</span>
-                    </a>
-                    <a href="{{ route('landlord.messages.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-envelope w-5"></i>
-                        <span>Messages</span>
-                    </a>
-                    <a href="{{ route('landlord.payments.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-credit-card w-5"></i>
-                        <span>Payments</span>
-                    </a>
-                    <a href="{{ route('receipts.index') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-receipt w-5"></i>
-                        <span>My Receipts</span>
-                    </a>   
-                    <a href="{{ route('landlord.profile.edit') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-user-cog w-5"></i>
-                        <span>Profile</span>
-                    </a>
-                    <a href="{{ route('landlord.settings') }}" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition">
-                        <i class="fas fa-cog w-5"></i>
-                        <span>Settings</span>
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="flex items-center space-x-3 text-blue-100 hover:text-white hover:bg-white hover:bg-opacity-10 p-3 rounded-lg transition w-full">
-                            <i class="fas fa-sign-out-alt w-5"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </nav>
-            </div>
-        </div>
- 
+
         <!-- Main Content -->
         <div class="flex-1 min-h-screen">
             <!-- Header -->
@@ -339,5 +284,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+@endsection

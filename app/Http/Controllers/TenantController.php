@@ -8,6 +8,7 @@ use App\Models\TenantAssignment;
 use App\Models\Unit;
 use App\Models\Property;
 use App\Models\ActivityLog;
+use App\Models\Setting;
 
 class TenantController extends Controller
 {
@@ -202,7 +203,8 @@ class TenantController extends Controller
     public function settings()
     {
         $user = Auth::user();
-        return view('tenant.settings', compact('user'));
+        $theme = Setting::getUserSetting($user->id, 'theme', 'light');
+        return view('tenant.settings', compact('user', 'theme'));
     }
     
     /**
@@ -220,13 +222,14 @@ class TenantController extends Controller
             'national_id' => 'nullable|string|max:20',
             'current_password' => 'nullable|required_with:new_password|current_password',
             'new_password' => 'nullable|min:8|confirmed',
+            'theme' => 'nullable|in:light,dark',
         ]);
         
         // Update user information
         $user->name = $validated['name'];
         $user->email = $validated['email'];
-        $user->phone = $validated['phone'];
-        $user->national_id = $validated['national_id'];
+        $user->phone_number = $validated['phone'];
+        $user->id_number = $validated['national_id'];
         
         // Update password if provided
         if (!empty($validated['new_password'])) {
@@ -234,6 +237,16 @@ class TenantController extends Controller
         }
         
         $user->save();
+        
+        // Update theme setting if provided
+        if (isset($validated['theme'])) {
+            Setting::setUserSetting($user->id, 'theme', $validated['theme']);
+            \Log::info('Theme updated for user ' . $user->id . ' to: ' . $validated['theme']);
+        } else {
+            // If checkbox is unchecked, set to light mode
+            Setting::setUserSetting($user->id, 'theme', 'light');
+            \Log::info('Theme updated for user ' . $user->id . ' to: light (checkbox unchecked)');
+        }
         
         // Log the profile update activity
         ActivityLog::logActivity(

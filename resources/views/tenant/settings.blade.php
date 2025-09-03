@@ -47,7 +47,7 @@
 
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" 
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone_number) }}" 
                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
                                    autocomplete="tel">
                             @error('phone')
@@ -57,7 +57,7 @@
 
                         <div>
                             <label for="national_id" class="block text-sm font-medium text-gray-700 mb-2">National ID</label>
-                            <input type="text" id="national_id" name="national_id" value="{{ old('national_id', $user->national_id) }}" 
+                            <input type="text" id="national_id" name="national_id" value="{{ old('national_id', $user->id_number) }}" 
                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
                                    readonly>
                             <p class="mt-1 text-xs text-gray-500">Contact your landlord to update this information</p>
@@ -148,8 +148,41 @@
             </div>
         </div>
 
-        <!-- Notification Preferences -->
+        <!-- Theme Preferences -->
         <div class="glass-card rounded-xl shadow-lg mb-8 animate-fadeInUp" style="animation-delay: 0.2s;">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-palette text-blue-600 mr-2"></i>
+                    Theme Preferences
+                </h3>
+            </div>
+            
+            <div class="p-6">
+                <form method="post" action="{{ route('tenant.settings.update') }}" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="name" value="{{ $user->name }}">
+                    <input type="hidden" name="email" value="{{ $user->email }}">
+                    <input type="hidden" name="phone" value="{{ $user->phone_number }}">
+                    <input type="hidden" name="national_id" value="{{ $user->id_number }}">
+                    
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">Dark Mode</h4>
+                            <p class="text-sm text-gray-600">Switch between light and dark theme</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="theme" value="dark" class="sr-only peer" 
+                                   {{ $theme === 'dark' ? 'checked' : '' }} 
+                                   onchange="this.form.submit()">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="glass-card rounded-xl shadow-lg mb-8 animate-fadeInUp" style="animation-delay: 0.3s;">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
                     <i class="fas fa-bell text-blue-600 mr-2"></i>
@@ -207,7 +240,7 @@
         </div>
 
         <!-- Account Actions -->
-        <div class="glass-card rounded-xl shadow-lg animate-fadeInUp" style="animation-delay: 0.3s;">
+        <div class="glass-card rounded-xl shadow-lg animate-fadeInUp" style="animation-delay: 0.4s;">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-medium text-gray-900">
                     <i class="fas fa-user-cog text-red-600 mr-2"></i>

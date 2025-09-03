@@ -1,0 +1,199 @@
+/* Dark Mode Styles */
+.dark {
+    /* Background colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --bg-card: #2d2d2d;
+    --bg-glass: rgba(45, 45, 45, 0.9);
+    
+    /* Text colors */
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    
+    /* Border colors */
+    --border-primary: #404040;
+    --border-secondary: #525252;
+    
+    /* Accent colors */
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+}
+
+/* Dark mode body */
+.dark body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: var(--text-primary);
+}
+
+/* Dark mode cards */
+.dark .glass-card,
+.dark .bg-white {
+    background: var(--bg-glass) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.dark .text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-600 {
+    color: var(--text-muted) !important;
+}
+
+.dark .text-gray-500 {
+    color: var(--text-muted) !important;
+}
+
+/* Dark mode backgrounds */
+.dark .bg-gradient-to-br {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%) !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-green-50,
+.dark .bg-yellow-50,
+.dark .bg-red-50 {
+    background: var(--bg-secondary) !important;
+}
+
+/* Dark mode borders */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+    border-color: var(--border-primary) !important;
+}
+
+/* Dark mode inputs */
+.dark input,
+.dark select,
+.dark textarea {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    border-color: var(--accent-blue) !important;
+    box-shadow: 0 0 0 1px var(--accent-blue) !important;
+}
+
+/* Dark mode buttons */
+.dark .bg-gradient-to-r {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green)) !important;
+}
+
+.dark .bg-red-600 {
+    background: var(--accent-red) !important;
+}
+
+.dark .bg-yellow-600 {
+    background: var(--accent-yellow) !important;
+}
+
+/* Dark mode navigation */
+.dark nav,
+.dark .navbar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* Dark mode tables */
+.dark table {
+    background: var(--bg-card) !important;
+}
+
+.dark th {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark td {
+    border-color: var(--border-primary) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Dark mode modals */
+.dark .modal,
+.dark .fixed.inset-0 > div {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-primary);
+}
+
+/* Dark mode alerts */
+.dark .bg-green-500 {
+    background: var(--accent-green) !important;
+}
+
+.dark .bg-red-500 {
+    background: var(--accent-red) !important;
+}
+
+.dark .bg-yellow-500 {
+    background: var(--accent-yellow) !important;
+}
+
+/* Dark mode dashboard cards */
+.dark .dashboard-card {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary);
+}
+
+/* Dark mode sidebar */
+.dark .sidebar {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+.dark .sidebar a {
+    color: var(--text-secondary) !important;
+}
+
+.dark .sidebar a:hover {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode dropdown */
+.dark .dropdown-menu {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-primary);
+}
+
+.dark .dropdown-item {
+    color: var(--text-secondary) !important;
+}
+
+.dark .dropdown-item:hover {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Dark mode toggle switch */
+.dark .peer-checked\:bg-blue-600 {
+    background-color: var(--accent-blue) !important;
+}
+
+/* Dark mode gradient text */
+.dark .bg-gradient-to-r.bg-clip-text {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Smooth transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

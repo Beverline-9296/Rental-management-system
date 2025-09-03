@@ -86,6 +86,8 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
     // Other landlord routes
 
     Route::get('/settings', [LandlordController::class, 'settings'])->name('settings');
+    Route::post('/settings', [LandlordController::class, 'updateSettings'])->name('settings.update');
+    Route::post('/settings/theme', [LandlordController::class, 'updateTheme'])->name('settings.theme');
 });
 
 // Tenant Routes (Protected by role middleware)
