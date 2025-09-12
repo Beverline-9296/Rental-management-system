@@ -35,8 +35,7 @@ RUN npm install && npm run build
 # Set permissions
 RUN chmod -R 775 storage bootstrap/cache
 
-# Generate application key
-RUN php artisan key:generate --force
+# REMOVE THIS LINE: RUN php artisan key:generate --force
 
 # Optimize Laravel
 RUN php artisan optimize:clear && php artisan optimize
