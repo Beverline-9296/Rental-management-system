@@ -11,15 +11,16 @@ if [ -z "$APP_KEY" ]; then
   php artisan key:generate --force
 fi
 
+# Install and build frontend assets
+echo "Installing Node.js dependencies..."
+npm install
+
+echo "Building frontend assets..."
+npm run build
+
 # Clear and optimize application
 php artisan optimize:clear
 php artisan optimize
-
-# Build assets (if you have frontend assets)
-if [ -f "package.json" ]; then
-  npm install
-  npm run build
-fi
 
 # Set proper permissions for Laravel
 chmod -R 775 storage bootstrap/cache

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: laravel-rental-system
+    env: php
+    buildCommand: "./render-build.sh"
+    startCommand: "php -S 0.0.0.0:8000 -t public"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
