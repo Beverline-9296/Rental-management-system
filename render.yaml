@@ -1,9 +1,8 @@
 services:
   - type: web
     name: laravel-rental-system
-    env: php
-    buildCommand: "./render-build.sh"
-    startCommand: "php -S 0.0.0.0:8000 -t public"
+    env: docker
+    dockerfilePath: Dockerfile
     envVars:
       - key: APP_ENV
         value: production
