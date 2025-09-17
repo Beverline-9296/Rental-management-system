@@ -20,26 +20,26 @@ services:
       - key: LOG_LEVEL
         value: info
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
         fromDatabase:
-          name: rental-mysql
+          name: rental-postgres
           property: host
       - key: DB_PORT
         fromDatabase:
-          name: rental-mysql
+          name: rental-postgres
           property: port
       - key: DB_DATABASE
         fromDatabase:
-          name: rental-mysql
+          name: rental-postgres
           property: database
       - key: DB_USERNAME
         fromDatabase:
-          name: rental-mysql
+          name: rental-postgres
           property: user
       - key: DB_PASSWORD
         fromDatabase:
-          name: rental-mysql
+          name: rental-postgres
           property: password
       - key: REDIS_URL
         fromService:
@@ -47,11 +47,11 @@ services:
           name: rental-redis
           property: connectionString
       - key: CACHE_STORE
-        value: redis
+        value: database
       - key: SESSION_DRIVER
-        value: redis
+        value: database
       - key: QUEUE_CONNECTION
-        value: redis
+        value: database
       - key: MAIL_MAILER
         value: smtp
       - key: MAIL_HOST
@@ -91,14 +91,7 @@ services:
       - key: SMS_FROM
         sync: false
 
-  # Redis Cache
-  - type: redis
-    name: rental-redis
-    plan: starter
-    region: oregon
-    maxmemoryPolicy: allkeys-lru
-
 databases:
-  - name: rental-mysql
+  - name: rental-postgres
     databaseName: rental_system
     user: laravel

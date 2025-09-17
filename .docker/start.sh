@@ -5,7 +5,13 @@ mkdir -p /var/log/supervisor
 
 # Wait for database to be ready (if using external database)
 echo "Waiting for database connection..."
-php artisan migrate --force
+
+# Try to run migrations, but don't fail if database is not available
+if php artisan migrate --force 2>/dev/null; then
+    echo "Database migrations completed successfully"
+else
+    echo "Database migrations failed - continuing without database"
+fi
 
 # Clear and cache configuration
 php artisan config:cache
