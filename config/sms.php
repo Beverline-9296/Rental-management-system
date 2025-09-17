@@ -13,5 +13,27 @@ return [
     'api_key' => env('SMS_API_KEY'),
     'username' => env('SMS_USERNAME', 'sandbox'),
     'base_url' => env('SMS_BASE_URL', 'https://api.africastalking.com/version1/messaging'),
-    'from' => env('SMS_FROM', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | SMS From
+    |--------------------------------------------------------------------------
+    |
+    | The sender ID for SMS messages
+    |
+    */
+
+    'from' => env('SMS_FROM', 'YourApp'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Development Mode
+    |--------------------------------------------------------------------------
+    |
+    | When true, SMS messages will be logged instead of sent
+    |
+    */
+
+    'development_mode' => env('SMS_DEVELOPMENT_MODE', false),
+
 ];

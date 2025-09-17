@@ -62,7 +62,8 @@ class PropertyController extends Controller
         $property = Property::create($validated);
 
         return redirect()->route('properties.index')
-            ->with('success', 'Property created successfully!');
+            ->with('
+        =-', 'Property created successfully!');
     }
 
     /**

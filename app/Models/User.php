@@ -31,6 +31,10 @@ class User extends Authenticatable
         'date_of_birth',
         'occupation',
         'bio',
+        'verification_code',
+        'verification_code_expires_at',
+        'is_verified',
+        'first_login_at',
     ];
 
     /**
@@ -53,6 +57,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'verification_code_expires_at' => 'datetime',
+            'first_login_at' => 'datetime',
         ];
     }
 

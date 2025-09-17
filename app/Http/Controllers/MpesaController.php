@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\MpesaService;
+use App\Services\SmsService;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
 use App\Models\TenantAssignment;
@@ -175,6 +176,34 @@ class MpesaController extends Controller
                         }
                     }
 
+                    // Send SMS payment confirmation
+                    try {
+                        $smsService = new SmsService();
+                        $assignment = $payment->tenant->tenantAssignments()
+                            ->where('unit_id', $payment->unit_id)
+                            ->with(['unit.property'])
+                            ->first();
+                        
+                        if ($assignment) {
+                            $smsService->sendPaymentConfirmation(
+                                $payment->tenant->phone_number,
+                                $payment->tenant->name,
+                                $payment->amount,
+                                $assignment->unit->property->name,
+                                $assignment->unit->unit_number,
+                                $receipt->receipt_number
+                            );
+                            
+                            \Log::info('Payment confirmation SMS sent', [
+                                'tenant_id' => $payment->tenant_id,
+                                'amount' => $payment->amount,
+                                'receipt' => $receipt->receipt_number
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to send payment confirmation SMS: ' . $e->getMessage());
+                    }
+
                     // Log the successful payment activity
                     ActivityLog::logActivity(
                         $transaction->tenant_id,
@@ -198,6 +227,30 @@ class MpesaController extends Controller
             } else {
                 // Payment failed
                 $transaction->markAsFailed($stkCallback);
+                
+                // Send SMS notification for payment failure
+                try {
+                    $smsService = new SmsService();
+                    $tenant = $transaction->tenant;
+                    
+                    if ($tenant && $tenant->phone_number) {
+                        $smsService->sendPaymentFailure(
+                            $tenant->phone_number,
+                            $tenant->name,
+                            $transaction->amount,
+                            $stkCallback['ResultDesc'] ?? 'Transaction failed'
+                        );
+                        
+                        Log::info('Payment failure SMS sent', [
+                            'tenant_id' => $tenant->id,
+                            'transaction_id' => $transaction->id,
+                            'reason' => $stkCallback['ResultDesc'] ?? 'Unknown'
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send payment failure SMS: ' . $e->getMessage());
+                }
+                
                 Log::info('Payment failed for transaction: ' . $transaction->id . ' - ' . $stkCallback['ResultDesc']);
             }
 

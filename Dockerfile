@@ -15,7 +15,10 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    supervisor \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
@@ -26,29 +29,35 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . .
 
+# Create necessary directories
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache
+
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Install npm dependencies and build assets
-RUN npm install && npm run build
+RUN npm ci && npm run build
 
 # Set permissions
-RUN chmod -R 775 storage bootstrap/cache
-
-# REMOVE THIS LINE: RUN php artisan key:generate --force
-
-# Optimize Laravel
-RUN php artisan optimize:clear && php artisan optimize
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# Change Apache document root to public folder
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
-RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Copy Apache configuration
+COPY .docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Copy supervisor configuration for queue workers
+COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy startup script
+COPY .docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Expose port 80
 EXPOSE 80
 
-# Start Apache
-CMD ["apache2-foreground"]
+# Start services
+CMD ["/usr/local/bin/start.sh"]

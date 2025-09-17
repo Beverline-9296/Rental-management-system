@@ -11,9 +11,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Mail\TenantWelcome;
+use App\Services\SmsService;
 
 class TenantController extends Controller
 {
@@ -83,6 +86,9 @@ class TenantController extends Controller
                 // Generate a random password
                 $password = Str::random(12);
                 
+                // Generate verification code (6-digit number)
+                $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                
                 // Create the tenant user with role 'tenant'
                 $tenant = User::create([
                     'name' => $validated['name'],
@@ -94,6 +100,9 @@ class TenantController extends Controller
                     'address' => $validated['address'],
                     'emergency_contact' => $validated['emergency_contact'],
                     'emergency_phone' => $validated['emergency_phone'],
+                    'verification_code' => $verificationCode,
+                    'verification_code_expires_at' => now()->addHours(24),
+                    'is_verified' => false,
                 ]);
 
                 // Verify tenant was created with correct role
@@ -144,8 +153,54 @@ class TenantController extends Controller
                     'landlord_id' => auth()->id()
                 ]);
 
-                // TODO: Send welcome email with login credentials
-                // Mail::to($tenant->email)->send(new TenantWelcome($tenant, $password));
+                // Send welcome email with login credentials and verification code
+                try {
+                    Mail::to($tenant->email)->send(new TenantWelcome($tenant, $password, $verificationCode));
+                    \Log::info('Welcome email sent successfully', [
+                        'tenant_id' => $tenant->id,
+                        'tenant_email' => $tenant->email
+                    ]);
+                } catch (\Exception $mailException) {
+                    \Log::error('Failed to send welcome email', [
+                        'tenant_id' => $tenant->id,
+                        'tenant_email' => $tenant->email,
+                        'error' => $mailException->getMessage()
+                    ]);
+                    // Don't fail the entire process if email fails
+                }
+
+                // Send welcome SMS and verification code
+                try {
+                    $smsService = new SmsService();
+                    
+                    // Send welcome SMS
+                    $smsService->sendWelcomeSms(
+                        $tenant->phone_number,
+                        $tenant->name,
+                        $unit->property->name,
+                        $unit->unit_number,
+                        auth()->user()->name
+                    );
+                    
+                    // Send verification code via SMS as backup
+                    $smsService->sendVerificationCode(
+                        $tenant->phone_number,
+                        $verificationCode,
+                        $tenant->name
+                    );
+                    
+                    \Log::info('Welcome and verification SMS sent successfully', [
+                        'tenant_id' => $tenant->id,
+                        'tenant_phone' => $tenant->phone_number
+                    ]);
+                } catch (\Exception $smsException) {
+                    \Log::error('Failed to send SMS notifications', [
+                        'tenant_id' => $tenant->id,
+                        'tenant_phone' => $tenant->phone_number,
+                        'error' => $smsException->getMessage()
+                    ]);
+                    // Don't fail the entire process if SMS fails
+                }
 
                 return redirect()->route('landlord.tenants.index')
                     ->with('success', "Tenant '{$tenant->name}' added successfully! They have been assigned to unit and their account is ready.")

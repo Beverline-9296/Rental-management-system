@@ -6,6 +6,7 @@ use App\Http\Controllers\TenantController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\Auth\VerificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -90,8 +91,8 @@ Route::middleware(['auth', 'role:landlord'])->prefix('landlord')->name('landlord
     Route::post('/settings/theme', [LandlordController::class, 'updateTheme'])->name('settings.theme');
 });
 
-// Tenant Routes (Protected by role middleware)
-Route::middleware(['auth', 'role:tenant'])->prefix('tenant')->name('tenant.')->group(function () {
+// Tenant Routes (Protected by role middleware and account verification)
+Route::middleware(['auth', 'role:tenant', 'verified.account'])->prefix('tenant')->name('tenant.')->group(function () {
     Route::get('/dashboard', [TenantController::class, 'dashboard'])->name('dashboard');
     Route::get('/payments', [\App\Http\Controllers\Tenant\PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/make-payment', [\App\Http\Controllers\Tenant\PaymentController::class, 'makePayment'])->name('payments.make-payment');
@@ -142,6 +143,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Account Verification Routes (for tenants on first login)
+Route::middleware('auth')->group(function () {
+    Route::get('/verify-account', [VerificationController::class, 'show'])->name('account.verification.show');
+    Route::post('/verify-account', [VerificationController::class, 'verify'])->name('account.verification.verify');
+    Route::post('/verify-account/resend', [VerificationController::class, 'resend'])->name('account.verification.resend');
 });
 
 require __DIR__.'/auth.php';

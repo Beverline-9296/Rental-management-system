@@ -33,7 +33,7 @@ class SmsService
             }
 
             // For development/testing - log the SMS instead of sending
-            if (config('app.env') === 'local' || !$this->apiKey) {
+            if (config('app.env') === 'local' || !$this->apiKey || config('sms.development_mode', false)) {
                 Log::info('SMS would be sent', [
                     'to' => $formattedPhone,
                     'message' => $message,
@@ -131,6 +131,74 @@ class SmsService
         
         // Return null for invalid formats
         return null;
+    }
+
+    /**
+     * Send verification code SMS
+     */
+    public function sendVerificationCode($phoneNumber, $verificationCode, $tenantName)
+    {
+        $message = "Hello {$tenantName}, your account verification code is: {$verificationCode}. This code expires in 24 hours. Use it to complete your account setup.";
+        
+        return $this->sendSms($phoneNumber, $message);
+    }
+
+    /**
+     * Send payment confirmation SMS
+     */
+    public function sendPaymentConfirmation($phoneNumber, $tenantName, $amount, $propertyName, $unitNumber, $receiptNumber)
+    {
+        $message = "Dear {$tenantName}, payment of KSh " . number_format($amount, 2) . " received for {$propertyName}, Unit {$unitNumber}. Receipt: {$receiptNumber}. Thank you!";
+        
+        return $this->sendSms($phoneNumber, $message);
+    }
+
+    /**
+     * Send payment failure SMS
+     */
+    public function sendPaymentFailure($phoneNumber, $tenantName, $amount, $reason = null)
+    {
+        $reasonText = $reason ? " Reason: {$reason}" : "";
+        $message = "Dear {$tenantName}, your payment of KSh " . number_format($amount, 2) . " could not be processed.{$reasonText} Please try again or contact support.";
+        
+        return $this->sendSms($phoneNumber, $message);
+    }
+
+    /**
+     * Send rent reminder SMS
+     */
+    public function sendRentReminder($phoneNumber, $tenantName, $propertyName, $unitNumber, $amount, $dueDate, $daysUntilDue)
+    {
+        if ($daysUntilDue > 0) {
+            $message = "Dear {$tenantName}, rent reminder: KSh " . number_format($amount, 2) . " due in {$daysUntilDue} days ({$dueDate}) for {$propertyName}, Unit {$unitNumber}. Please prepare payment.";
+        } else {
+            $daysPastDue = abs($daysUntilDue);
+            $message = "Dear {$tenantName}, rent overdue: KSh " . number_format($amount, 2) . " was due {$daysPastDue} days ago for {$propertyName}, Unit {$unitNumber}. Please pay immediately.";
+        }
+        
+        return $this->sendSms($phoneNumber, $message);
+    }
+
+    /**
+     * Send maintenance update SMS
+     */
+    public function sendMaintenanceUpdate($phoneNumber, $tenantName, $requestId, $status, $message = null)
+    {
+        $statusText = ucfirst($status);
+        $additionalMessage = $message ? " Message: {$message}" : "";
+        $smsText = "Dear {$tenantName}, your maintenance request #{$requestId} status: {$statusText}.{$additionalMessage}";
+        
+        return $this->sendSms($phoneNumber, $smsText);
+    }
+
+    /**
+     * Send welcome SMS to new tenant
+     */
+    public function sendWelcomeSms($phoneNumber, $tenantName, $propertyName, $unitNumber, $landlordName)
+    {
+        $message = "Welcome {$tenantName}! Your rental account has been created for {$propertyName}, Unit {$unitNumber}. Check your email for login details. Contact: {$landlordName}";
+        
+        return $this->sendSms($phoneNumber, $message);
     }
 
     /**

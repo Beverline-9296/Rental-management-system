@@ -29,8 +29,32 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Log the login activity for both tenants and landlords
+        // Get the authenticated user
         $user = Auth::user();
+        
+        // Check if user is a tenant and not verified
+        if ($user && $user->isTenant() && !$user->is_verified) {
+            // Check if verification code has expired
+            if ($user->verification_code_expires_at && now()->isAfter($user->verification_code_expires_at)) {
+                // Generate new verification code
+                $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $user->update([
+                    'verification_code' => $verificationCode,
+                    'verification_code_expires_at' => now()->addHours(24),
+                ]);
+                
+                // Optionally send new verification email here
+                \Log::info('Verification code regenerated for expired code', [
+                    'user_id' => $user->id,
+                    'email' => $user->email
+                ]);
+            }
+            
+            return redirect()->route('account.verification.show')
+                ->with('info', 'Please verify your account to continue. Check your email for the verification code.');
+        }
+
+        // Log the login activity for both tenants and landlords
         if ($user && ($user->isTenant() || $user->isLandlord())) {
             ActivityLog::logActivity(
                 $user->id,
