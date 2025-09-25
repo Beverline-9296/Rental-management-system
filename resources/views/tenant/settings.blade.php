@@ -173,7 +173,7 @@
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" name="theme" value="dark" class="sr-only peer" 
                                    {{ $theme === 'dark' ? 'checked' : '' }} 
-                                   onchange="this.form.submit()">
+                                   onchange="updateThemeAndSubmit(this)">
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
@@ -340,6 +340,24 @@ function confirmDelete() {
 function closeDeleteModal() {
     document.getElementById('deleteModal').classList.add('hidden');
     document.getElementById('deleteModal').classList.remove('flex');
+}
+
+function updateThemeAndSubmit(checkbox) {
+    // Determine the new theme
+    const newTheme = checkbox.checked ? 'dark' : 'light';
+    
+    // Update localStorage immediately
+    localStorage.setItem('theme', newTheme);
+    
+    // Update the current page theme immediately
+    const htmlRoot = document.getElementById('html-root');
+    if (htmlRoot) {
+        htmlRoot.setAttribute('data-theme', newTheme);
+        htmlRoot.className = newTheme;
+    }
+    
+    // Submit the form to update the database
+    checkbox.form.submit();
 }
 </script>
 

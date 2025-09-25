@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\ActivityLog;
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,14 @@ class AuthenticatedSessionController extends Controller
 
         // Get the authenticated user
         $user = Auth::user();
+        
+        // Sync theme preference from localStorage to database
+        if ($user && $request->has('preferred_theme')) {
+            $preferredTheme = $request->input('preferred_theme');
+            if (in_array($preferredTheme, ['light', 'dark'])) {
+                Setting::setUserSetting($user->id, 'theme', $preferredTheme);
+            }
+        }
         
         // Check if user is a tenant and not verified
         if ($user && $user->isTenant() && !$user->is_verified) {

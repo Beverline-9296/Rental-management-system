@@ -2,7 +2,7 @@
 @php
     $currentTheme = auth()->check() ? \App\Models\Setting::getUserSetting(auth()->id(), 'theme', 'light') : 'light';
 @endphp
-<html lang="en" class="{{ $currentTheme }}" data-theme="{{ $currentTheme }}">
+<html lang="en" class="{{ $currentTheme }}" data-theme="{{ $currentTheme }}" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -95,5 +95,34 @@
     </div>
 
     @stack('scripts')
+    
+    <script>
+        // Sync localStorage theme with database theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const htmlRoot = document.getElementById('html-root');
+            const localStorageTheme = localStorage.getItem('theme');
+            const currentTheme = htmlRoot.getAttribute('data-theme');
+            
+            // If localStorage has a different theme than database, update the page immediately
+            if (localStorageTheme && localStorageTheme !== currentTheme) {
+                htmlRoot.setAttribute('data-theme', localStorageTheme);
+                htmlRoot.className = localStorageTheme;
+                
+                // Send AJAX request to update database
+                fetch('{{ route("tenant.settings.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        theme: localStorageTheme
+                    })
+                }).catch(error => {
+                    console.log('Theme sync failed:', error);
+                });
+            }
+        });
+    </script>
 </body>
 </html>

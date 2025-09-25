@@ -7,7 +7,30 @@
         <title>Login - Rental</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
+        <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
         <style>
+            :root {
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8fafc;
+                --bg-card: rgba(255, 255, 255, 0.95);
+                --text-primary: #1f2937;
+                --text-secondary: #6b7280;
+                --text-muted: #9ca3af;
+                --border-color: #e5e7eb;
+                --gradient-overlay: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4));
+            }
+
+            [data-theme="dark"] {
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-card: rgba(30, 41, 59, 0.95);
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+                --gradient-overlay: linear-gradient(rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.8));
+            }
+
             @keyframes fadeInUp {
                 from {
                     opacity: 0;
@@ -65,32 +88,92 @@
             }
             
             .bg-buildings {
-                background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+                background-image: var(--gradient-overlay), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
+                transition: all 0.3s ease;
             }
             
             .glass-effect {
-                background: rgba(255, 255, 255, 0.95);
+                background: var(--bg-card);
                 backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                border: 1px solid var(--border-color);
+                color: var(--text-primary);
+                transition: all 0.3s ease;
+            }
+
+            .header-bg {
+                background: var(--bg-primary);
+                border-bottom: 1px solid var(--border-color);
+                transition: all 0.3s ease;
+            }
+
+            .nav-text {
+                color: var(--text-primary);
+                transition: all 0.3s ease;
+            }
+
+            .nav-link {
+                color: var(--text-secondary);
+                transition: all 0.3s ease;
+            }
+
+            .theme-toggle {
+                position: relative;
+                width: 50px;
+                height: 25px;
+                background: #374151;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 2px solid #4b5563;
+            }
+
+            .theme-toggle.active {
+                background: #3b82f6;
+                border-color: #2563eb;
+            }
+
+            .theme-toggle::before {
+                content: '';
+                position: absolute;
+                top: 1px;
+                left: 1px;
+                width: 19px;
+                height: 19px;
+                background: white;
+                border-radius: 50%;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .theme-toggle.active::before {
+                transform: translateX(23px);
             }
         </style>
     </head>
-    <body class="bg-buildings min-h-screen flex items-center justify-center">
+    <body class="bg-buildings min-h-screen flex items-center justify-center" data-theme="light">
         <!-- Navigation Header -->
-        <header class="fixed top-0 left-0 right-0 bg-white bg-opacity-95 shadow-sm z-50">
+        <header class="fixed top-0 left-0 right-0 header-bg shadow-sm z-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between items-center py-4">
                     <div class="flex items-center space-x-2">
                         <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
-                        <h1 class="text-2xl font-bold text-gray-900">Rental</h1>
+                        <h1 class="text-2xl font-bold nav-text">Rental</h1>
                     </div>
-                    <a href="{{ url('/') }}" class="text-blue-600 hover:text-blue-700 transition duration-200">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Back to Home
-                    </a>
+                    <div class="flex items-center space-x-4">
+                        <!-- Theme Toggle -->
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-sun text-yellow-500 text-sm"></i>
+                            <div class="theme-toggle" id="themeToggle"></div>
+                            <i class="fas fa-moon text-blue-400 text-sm"></i>
+                        </div>
+                        <a href="{{ url('/') }}" class="nav-link hover:text-blue-600 transition duration-200">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Home
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>
@@ -213,5 +296,46 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+
+            // Check for saved theme preference or default to 'light'
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+
+            // Update toggle state based on current theme
+            if (currentTheme === 'dark') {
+                themeToggle.classList.add('active');
+            }
+
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Update toggle state
+                if (newTheme === 'dark') {
+                    themeToggle.classList.add('active');
+                } else {
+                    themeToggle.classList.remove('active');
+                }
+            });
+
+            // Add theme to login form for server-side processing
+            document.querySelector('form').addEventListener('submit', function() {
+                const theme = localStorage.getItem('theme') || 'light';
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'preferred_theme';
+                hiddenInput.value = theme;
+                this.appendChild(hiddenInput);
+            });
+        </script>
     </body>
 </html>

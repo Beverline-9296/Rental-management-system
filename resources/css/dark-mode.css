@@ -34,8 +34,34 @@
 .dark .bg-white {
     background: var(--bg-glass) !important;
     backdrop-filter: blur(10px);
-    border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-primary) !important;
     color: var(--text-primary);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Enhanced card styling for dark mode */
+.dark .rounded-lg,
+.dark .rounded-xl,
+.dark .rounded-2xl {
+    border: 1px solid var(--border-primary) !important;
+}
+
+/* Specific card types */
+.dark .bg-white.shadow,
+.dark .bg-white.shadow-sm,
+.dark .bg-white.shadow-md,
+.dark .bg-white.shadow-lg,
+.dark .bg-white.shadow-xl {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Card hover effects */
+.dark .glass-card:hover,
+.dark .bg-white:hover {
+    border-color: var(--border-secondary) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Dark mode text colors */
@@ -69,7 +95,24 @@
 
 /* Dark mode borders */
 .dark .border-gray-200,
-.dark .border-gray-300 {
+.dark .border-gray-300,
+.dark .border-gray-100,
+.dark .border-gray-400 {
+    border-color: var(--border-primary) !important;
+}
+
+/* Enhanced border styling */
+.dark .border,
+.dark .border-t,
+.dark .border-b,
+.dark .border-l,
+.dark .border-r {
+    border-color: var(--border-primary) !important;
+}
+
+/* Dividers and separators */
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-300 > :not([hidden]) ~ :not([hidden]) {
     border-color: var(--border-primary) !important;
 }
 
@@ -147,7 +190,167 @@
 /* Dark mode dashboard cards */
 .dark .dashboard-card {
     background: var(--bg-glass) !important;
-    border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-primary) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dashboard card colored borders - Highest specificity */
+div.glass-card.dashboard-card-blue,
+.glass-card.dashboard-card-blue {
+    border: 3px solid #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.15), 0 4px 6px -2px rgba(59, 130, 246, 0.1) !important;
+}
+
+.glass-card.dashboard-card-blue:hover {
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1) !important;
+    border-color: #2563eb !important;
+}
+
+div.glass-card.dashboard-card-green,
+.glass-card.dashboard-card-green {
+    border: 3px solid #10b981 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.15), 0 4px 6px -2px rgba(16, 185, 129, 0.1) !important;
+}
+
+.glass-card.dashboard-card-green:hover {
+    box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.2), 0 10px 10px -5px rgba(16, 185, 129, 0.1) !important;
+    border-color: #059669 !important;
+}
+
+div.glass-card.dashboard-card-orange,
+.glass-card.dashboard-card-orange {
+    border: 3px solid #f59e0b !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.15), 0 4px 6px -2px rgba(245, 158, 11, 0.1) !important;
+}
+
+.glass-card.dashboard-card-orange:hover {
+    box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.2), 0 10px 10px -5px rgba(245, 158, 11, 0.1) !important;
+    border-color: #d97706 !important;
+}
+
+div.glass-card.dashboard-card-red,
+.glass-card.dashboard-card-red {
+    border: 3px solid #ef4444 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.15), 0 4px 6px -2px rgba(239, 68, 68, 0.1) !important;
+}
+
+.glass-card.dashboard-card-red:hover {
+    box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.2), 0 10px 10px -5px rgba(239, 68, 68, 0.1) !important;
+    border-color: #dc2626 !important;
+}
+
+div.glass-card.dashboard-card-purple,
+.glass-card.dashboard-card-purple {
+    border: 3px solid #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.15), 0 4px 6px -2px rgba(139, 92, 246, 0.1) !important;
+}
+
+.glass-card.dashboard-card-purple:hover {
+    box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2), 0 10px 10px -5px rgba(139, 92, 246, 0.1) !important;
+    border-color: #7c3aed !important;
+}
+
+/* Dark mode dashboard card borders - Higher specificity */
+.dark div.glass-card.dashboard-card-blue,
+.dark .glass-card.dashboard-card-blue {
+    border: 3px solid #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.25), 0 4px 6px -2px rgba(59, 130, 246, 0.15) !important;
+}
+
+.dark .glass-card.dashboard-card-blue:hover {
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.3), 0 10px 10px -5px rgba(59, 130, 246, 0.2) !important;
+    border-color: #2563eb !important;
+}
+
+.dark div.glass-card.dashboard-card-green,
+.dark .glass-card.dashboard-card-green {
+    border: 3px solid #10b981 !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.25), 0 4px 6px -2px rgba(16, 185, 129, 0.15) !important;
+}
+
+.dark .glass-card.dashboard-card-green:hover {
+    box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3), 0 10px 10px -5px rgba(16, 185, 129, 0.2) !important;
+    border-color: #059669 !important;
+}
+
+.dark div.glass-card.dashboard-card-orange,
+.dark .glass-card.dashboard-card-orange {
+    border: 3px solid #f59e0b !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.25), 0 4px 6px -2px rgba(245, 158, 11, 0.15) !important;
+}
+
+.dark .glass-card.dashboard-card-orange:hover {
+    box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.3), 0 10px 10px -5px rgba(245, 158, 11, 0.2) !important;
+    border-color: #d97706 !important;
+}
+
+.dark div.glass-card.dashboard-card-red,
+.dark .glass-card.dashboard-card-red {
+    border: 3px solid #ef4444 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.25), 0 4px 6px -2px rgba(239, 68, 68, 0.15) !important;
+}
+
+.dark .glass-card.dashboard-card-red:hover {
+    box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.3), 0 10px 10px -5px rgba(239, 68, 68, 0.2) !important;
+    border-color: #dc2626 !important;
+}
+
+.dark div.glass-card.dashboard-card-purple,
+.dark .glass-card.dashboard-card-purple {
+    border: 3px solid #8b5cf6 !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.25), 0 4px 6px -2px rgba(139, 92, 246, 0.15) !important;
+}
+
+.dark .glass-card.dashboard-card-purple:hover {
+    box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.3), 0 10px 10px -5px rgba(139, 92, 246, 0.2) !important;
+    border-color: #7c3aed !important;
+}
+
+/* Additional card styling for common dashboard elements */
+.dark .card,
+.dark .panel,
+.dark .widget,
+.dark .stat-card,
+.dark .info-card {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Card headers and footers */
+.dark .card-header,
+.dark .panel-header {
+    background: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark .card-footer,
+.dark .panel-footer {
+    background: var(--bg-secondary) !important;
+    border-top: 1px solid var(--border-primary) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Gradient cards in dark mode */
+.dark .bg-gradient-to-br.from-blue-50,
+.dark .bg-gradient-to-br.from-green-50,
+.dark .bg-gradient-to-br.from-purple-50,
+.dark .bg-gradient-to-br.from-yellow-50,
+.dark .bg-gradient-to-br.from-red-50 {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary) !important;
 }
 
 /* Dark mode sidebar */
@@ -193,7 +396,51 @@
     -webkit-text-fill-color: transparent;
 }
 
+/* Dashboard specific styling */
+.dark .p-4,
+.dark .p-6,
+.dark .p-8 {
+    border-radius: 0.5rem;
+}
+
+/* Stats cards and metric cards */
+.dark .bg-white.p-4,
+.dark .bg-white.p-6,
+.dark .bg-white.p-8 {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-primary) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* List items and table rows */
+.dark .bg-gray-50,
+.dark .bg-gray-100 {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-primary) !important;
+}
+
+/* Hover states for interactive cards */
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+/* Ring and focus states */
+.dark .ring-gray-200,
+.dark .ring-gray-300 {
+    --tw-ring-color: var(--border-primary) !important;
+}
+
+/* Better contrast for card content */
+.dark .text-gray-800 {
+    color: var(--text-primary) !important;
+}
+
+.dark .text-gray-400 {
+    color: var(--text-muted) !important;
+}
+
 /* Smooth transitions */
 * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }

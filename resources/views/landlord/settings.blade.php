@@ -416,10 +416,23 @@ function toggleTheme() {
     const input = document.getElementById('themeInput');
     const checkbox = form.querySelector('input[type="checkbox"]');
     
-    // Update hidden input value based on checkbox state
-    input.value = checkbox.checked ? 'dark' : 'light';
+    // Determine the new theme
+    const newTheme = checkbox.checked ? 'dark' : 'light';
     
-    // Submit the form
+    // Update localStorage immediately
+    localStorage.setItem('theme', newTheme);
+    
+    // Update the current page theme immediately
+    const htmlRoot = document.getElementById('html-root');
+    if (htmlRoot) {
+        htmlRoot.setAttribute('data-theme', newTheme);
+        htmlRoot.className = newTheme;
+    }
+    
+    // Update hidden input value based on checkbox state
+    input.value = newTheme;
+    
+    // Submit the form to update the database
     form.submit();
 }
 </script>

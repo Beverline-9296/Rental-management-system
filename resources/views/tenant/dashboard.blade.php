@@ -55,7 +55,7 @@
             <div class="p-8 overflow-y-auto">
                 <!-- Summary Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="glass-card dashboard-card-blue p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.1s;">
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="text-3xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">KSh {{ number_format($rental_summary['rent_amount']) }}</div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="glass-card dashboard-card-green p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.2s;">
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="text-3xl font-bold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent">KSh {{ number_format($rental_summary['balance']) }}</div>
@@ -77,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.3s;">
+                    <div class="glass-card dashboard-card-purple p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.3s;">
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="text-3xl font-bold bg-gradient-to-r from-purple-500 to-purple-600 bg-clip-text text-transparent">0</div>
@@ -88,7 +88,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="glass-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
+                    <div class="glass-card dashboard-card-red p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 animate-fadeInUp" style="animation-delay: 0.4s;">
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">KSh {{ number_format($arrears, 2) }}</div>
