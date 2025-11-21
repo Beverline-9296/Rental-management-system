@@ -8,6 +8,72 @@
         <script src="https://cdn.tailwindcss.com"></script>
 
         <style>
+            :root {
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8fafc;
+                --bg-card: rgba(255, 255, 255, 0.95);
+                --text-primary: #1f2937;
+                --text-secondary: #6b7280;
+                --text-muted: #9ca3af;
+                --border-color: #e5e7eb;
+            }
+
+            [data-theme="dark"] {
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --bg-card: rgba(30, 41, 59, 0.95);
+                --text-primary: #f1f5f9;
+                --text-secondary: #cbd5e1;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+
+            body {
+                background-color: var(--bg-primary);
+                color: var(--text-primary);
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+
+            .header-bg {
+                background-color: var(--bg-card);
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .content-card {
+                background-color: var(--bg-card);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+            }
+
+            .text-gray-700 {
+                color: var(--text-secondary) !important;
+            }
+
+            .text-gray-600 {
+                color: var(--text-muted) !important;
+            }
+
+            input, textarea {
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
+                border-color: var(--border-color);
+            }
+
+            [data-theme="dark"] input,
+            [data-theme="dark"] textarea {
+                background-color: rgba(30, 41, 59, 0.5);
+                border-color: var(--border-color);
+            }
+
+            .bg-blue-100 {
+                background-color: var(--bg-secondary) !important;
+            }
+
+            [data-theme="dark"] .bg-blue-100 {
+                background-color: rgba(59, 130, 246, 0.1) !important;
+            }
+
             @keyframes fadeInUp {
                 from { 
                     opacity: 0;
@@ -87,8 +153,41 @@
             }
         </style>
     </head>
-    <body class="bg-gray-900">
-        @include('partials.header')
+    <body data-theme="light">
+        <!-- Navigation Header -->
+        <header class="header-bg shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-8">
+                        <div class="flex-shrink-0">
+                            <div class="flex items-center">
+                                <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-16 h-16 object-cover rounded-full shadow-md">
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <h1 class="text-2xl font-bold" style="color: var(--text-primary);">Rental</h1>
+                        </div>
+                        <nav class="hidden md:flex items-center space-x-6">
+                            <a href="{{ url('/') }}" class="hover:text-blue-600 px-3 py-2 text-sm font-medium" style="color: var(--text-secondary);">Home</a>
+                            <a href="{{ url('about') }}" class="hover:text-blue-600 px-3 py-2 text-sm font-medium" style="color: var(--text-secondary);">About</a>
+                            <a href="{{ url('contact') }}" class="hover:text-blue-600 px-3 py-2 text-sm font-medium" style="color: var(--text-secondary);">Contact</a>
+                        </nav>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <div class="flex items-center space-x-4">
+                        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <svg id="theme-toggle-light-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                            </svg>
+                            <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
 
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             @if(session('success'))
@@ -106,7 +205,7 @@
                     </ul>
                 </div>
             @endif
-            <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="content-card rounded-xl shadow-lg p-8">
                 <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8 text-center">Contact Us</h1>
                 <div class="grid md:grid-cols-2 gap-12">
                     <!-- Contact Form -->
@@ -214,5 +313,41 @@
         </main>
 
         @include('partials.footer')
+
+        <script>
+            // Dark mode toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+
+            // Check for saved theme preference or default to 'light'
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+
+            // Update toggle state based on current theme
+            if (currentTheme === 'dark') {
+                lightIcon.classList.add('hidden');
+                darkIcon.classList.remove('hidden');
+            }
+
+            // Theme toggle event listener
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Update toggle state
+                if (newTheme === 'dark') {
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                } else {
+                    lightIcon.classList.remove('hidden');
+                    darkIcon.classList.add('hidden');
+                }
+            });
+        </script>
     </body>
 </html>

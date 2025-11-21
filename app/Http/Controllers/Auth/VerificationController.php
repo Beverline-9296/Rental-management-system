@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Mail\VerificationCodeResend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 
 class VerificationController extends Controller
@@ -83,14 +85,24 @@ class VerificationController extends Controller
             'verification_code_expires_at' => now()->addHours(24),
         ]);
         
-        // Send new verification email (you can create a separate mail class for this)
-        // Mail::to($user->email)->send(new VerificationCodeResend($user, $verificationCode));
-        
-        Log::info('Verification code resent', [
-            'user_id' => $user->id,
-            'email' => $user->email
-        ]);
-        
-        return back()->with('success', 'A new verification code has been sent to your email.');
+        // Send new verification email
+        try {
+            Mail::to($user->email)->send(new VerificationCodeResend($user, $verificationCode));
+            
+            Log::info('Verification code resent successfully', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+            
+            return back()->with('success', 'A new verification code has been sent to your email.');
+        } catch (\Exception $e) {
+            Log::error('Failed to send verification code email', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
+            
+            return back()->with('error', 'Failed to send verification code. Please try again or contact support.');
+        }
     }
 }
