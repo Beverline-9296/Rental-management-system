@@ -33,6 +33,7 @@ class ProcessPendingMpesaJob implements ShouldQueue
     public function handle(): void
     {
         $cutoffTime = now()->subMinutes($this->timeoutMinutes);
+        $mpesaService = app(MpesaService::class);
         
         // Get pending transactions older than timeout period
         $pendingTransactions = MpesaTransaction::where('status', 'pending')
@@ -51,20 +52,43 @@ class ProcessPendingMpesaJob implements ShouldQueue
 
         foreach ($pendingTransactions as $transaction) {
             try {
-                $transactionAge = now()->diffInMinutes($transaction->created_at);
-                
-                // Only process transactions older than 0.5 minutes (30 seconds)
-                if ($transactionAge >= 0.5 || $transactionAge < 0) {
-                    // For sandbox: Mark ALL transactions as FAILED by default
-                    // This is safer - only successful callbacks will mark as success
-                    $transaction->update([
-                        'status' => 'failed',
-                        'transaction_date' => now(),
-                        'result_desc' => 'Transaction timed out or was cancelled',
-                        'result_code' => '1032'
-                    ]);
-                    
-                    Log::info("M-Pesa transaction {$transaction->id} marked as failed due to timeout (sandbox safe mode)");
+                $transactionAge = max(0, $transaction->created_at->diffInMinutes(now(), false));
+                $queryResponse = $mpesaService->stkQuery($transaction->checkout_request_id);
+                $resultCode = isset($queryResponse['ResultCode']) ? (string) $queryResponse['ResultCode'] : null;
+
+                if ($resultCode === '0') {
+                    DB::transaction(function () use ($transaction) {
+                        if ($transaction->isPending()) {
+                            $transaction->markAsSuccess(['ResultCode' => 0, 'ResultDesc' => 'Success']);
+                        }
+
+                        Payment::firstOrCreate(
+                            ['mpesa_transaction_id' => $transaction->id],
+                            [
+                                'tenant_id' => $transaction->tenant_id,
+                                'unit_id' => $transaction->unit_id,
+                                'property_id' => $transaction->property_id,
+                                'amount' => $transaction->amount,
+                                'payment_date' => now(),
+                                'payment_method' => 'mpesa',
+                                'payment_type' => $transaction->payment_type,
+                                'notes' => 'M-Pesa payment (job reconciliation)',
+                                'recorded_by' => $transaction->tenant_id,
+                            ]
+                        );
+                    });
+                } else {
+                    $knownFailureCodes = ['1', '17', '1032', '1037', '2001'];
+                    $hardTimeoutReached = $transactionAge >= ($this->timeoutMinutes + 2);
+
+                    if (in_array((string) $resultCode, $knownFailureCodes, true) || $hardTimeoutReached) {
+                        if ($transaction->isPending()) {
+                            $transaction->markAsFailed([
+                                'ResultCode' => $resultCode ?? '1032',
+                                'ResultDesc' => $queryResponse['ResultDesc'] ?? 'Transaction timed out',
+                            ]);
+                        }
+                    }
                 }
 
                 $processed++;

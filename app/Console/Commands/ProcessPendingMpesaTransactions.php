@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\MpesaTransaction;
 use App\Models\Payment;
-use App\Models\ActivityLog;
 use App\Services\MpesaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,8 +29,9 @@ class ProcessPendingMpesaTransactions extends Command
      */
     public function handle()
     {
-        $timeoutMinutes = $this->option('timeout');
+        $timeoutMinutes = max((float) $this->option('timeout'), 1);
         $cutoffTime = now()->subMinutes($timeoutMinutes);
+        $mpesaService = app(MpesaService::class);
         
         // Get pending transactions older than timeout period
         $pendingTransactions = MpesaTransaction::where('status', 'pending')
@@ -51,83 +51,65 @@ class ProcessPendingMpesaTransactions extends Command
 
         foreach ($pendingTransactions as $transaction) {
             try {
-                $isSandbox = config('mpesa.environment') === 'sandbox';
-                $transactionAge = now()->diffInMinutes($transaction->created_at);
+                $transactionAge = max(0, $transaction->created_at->diffInMinutes(now(), false));
                 
-                $this->line("🔍 Processing transaction ID: {$transaction->id} (Age: {$transactionAge} min)");
-                
-                // Smart sandbox logic: Only assume success for transactions that haven't been explicitly failed
-                if ($isSandbox && ($transactionAge >= 2 || $transactionAge < 0)) {
-                    // Mark as successful and create payment
-                    DB::transaction(function () use ($transaction) {
-                        $receiptNumber = 'SBX' . time() . rand(1000, 9999);
-                        
-                        $transaction->update([
-                            'status' => 'success',
-                            'mpesa_receipt_number' => $receiptNumber,
-                            'transaction_date' => now(),
-                            'result_desc' => 'Payment completed successfully (sandbox)',
-                            'result_code' => '0'
-                        ]);
-                        
-                        // Create payment record
-                        $payment = Payment::create([
-                            'tenant_id' => $transaction->tenant_id,
-                            'unit_id' => $transaction->unit_id,
-                            'property_id' => $transaction->property_id,
-                            'amount' => $transaction->amount,
-                            'payment_date' => now(),
-                            'payment_method' => 'mpesa',
-                            'payment_type' => $transaction->payment_type,
-                            'notes' => 'M-Pesa payment - Receipt: ' . $receiptNumber,
-                            'recorded_by' => $transaction->tenant_id,
-                            'mpesa_transaction_id' => $transaction->id
-                        ]);
+                $this->line("Processing transaction ID: {$transaction->id} (Age: {$transactionAge} min)");
+                $queryResponse = $mpesaService->stkQuery($transaction->checkout_request_id);
+                $resultCode = isset($queryResponse['ResultCode']) ? (string) $queryResponse['ResultCode'] : null;
 
-                        // Log the successful payment activity
-                        ActivityLog::logActivity(
-                            $transaction->tenant_id,
-                            'payment_completed',
-                            'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa',
+                if ($resultCode === '0') {
+                    DB::transaction(function () use ($transaction) {
+                        if ($transaction->isPending()) {
+                            $transaction->markAsSuccess(['ResultCode' => 0, 'ResultDesc' => 'Success']);
+                        }
+
+                        Payment::firstOrCreate(
+                            ['mpesa_transaction_id' => $transaction->id],
                             [
-                                'payment_id' => $payment->id,
-                                'amount' => $transaction->amount,
-                                'method' => 'mpesa',
-                                'receipt' => $receiptNumber,
+                                'tenant_id' => $transaction->tenant_id,
                                 'unit_id' => $transaction->unit_id,
-                                'payment_type' => $transaction->payment_type
-                            ],
-                            'fas fa-check-circle',
-                            'green'
+                                'property_id' => $transaction->property_id,
+                                'amount' => $transaction->amount,
+                                'payment_date' => now(),
+                                'payment_method' => 'mpesa',
+                                'payment_type' => $transaction->payment_type,
+                                'notes' => 'M-Pesa payment (scheduled reconciliation)',
+                                'recorded_by' => $transaction->tenant_id,
+                            ]
                         );
                     });
                     
-                    $this->line("✅ SUCCESS: Transaction ID: {$transaction->id} (KES {$transaction->amount}) - Payment recorded");
+                    $this->line("SUCCESS: Transaction ID {$transaction->id} finalized.");
                     $successful++;
                 } else {
-                    // Process failed transaction (no receipt number means user didn't complete payment)
-                    $transaction->update([
-                        'status' => 'failed',
-                        'transaction_date' => now(),
-                        'result_desc' => $transactionAge >= $timeoutMinutes ? 'Transaction timed out' : 'Payment cancelled by user',
-                        'result_code' => $transactionAge >= $timeoutMinutes ? '1032' : '1'
-                    ]);
-                    
-                    $this->line("❌ FAILED: Transaction ID: {$transaction->id} (KES {$transaction->amount}) - " . 
-                        ($transactionAge >= $timeoutMinutes ? 'Timeout' : 'User cancelled'));
-                    $failed++;
+                    $knownFailureCodes = ['1', '17', '1032', '1037', '2001'];
+                    $hardTimeoutReached = $transactionAge >= ($timeoutMinutes + 2);
+
+                    if (in_array((string) $resultCode, $knownFailureCodes, true) || $hardTimeoutReached) {
+                        if ($transaction->isPending()) {
+                            $transaction->markAsFailed([
+                                'ResultCode' => $resultCode ?? '1032',
+                                'ResultDesc' => $queryResponse['ResultDesc'] ?? 'Transaction timed out',
+                            ]);
+                        }
+
+                        $this->line("FAILED: Transaction ID {$transaction->id} closed as failed.");
+                        $failed++;
+                    } else {
+                        $this->line("WAIT: Transaction ID {$transaction->id} still pending at gateway.");
+                    }
                 }
 
                 $processed++;
 
             } catch (\Exception $e) {
-                $this->error("❌ ERROR: Failed to process transaction ID: {$transaction->id} - {$e->getMessage()}");
+                $this->error("ERROR: Failed processing transaction ID {$transaction->id} - {$e->getMessage()}");
                 Log::error("Failed to process M-Pesa transaction {$transaction->id}: " . $e->getMessage());
                 $failed++;
             }
         }
 
-        $this->info("\n=== Processing Complete ===");
+        $this->info("\nProcessing Complete");
         $this->info("Total Processed: {$processed}");
         $this->info("Successful: {$successful}");
         $this->info("Failed: {$failed}");

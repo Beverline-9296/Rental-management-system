@@ -144,75 +144,87 @@ class MpesaController extends Controller
             }
 
             if ($stkCallback['ResultCode'] == 0) {
-                // Payment successful
-                DB::transaction(function () use ($transaction, $stkCallback) {
-                    // Update M-Pesa transaction
-                    $transaction->markAsSuccess($stkCallback);
-                    
-                    // Create payment record
-                    $payment = Payment::create([
-                        'tenant_id' => $transaction->tenant_id,
-                        'unit_id' => $transaction->unit_id,
-                        'property_id' => $transaction->property_id,
-                        'amount' => $transaction->amount,
-                        'payment_date' => now(),
-                        'payment_method' => 'mpesa',
-                        'payment_type' => $transaction->payment_type,
-                        'notes' => 'M-Pesa payment - Receipt: ' . $transaction->mpesa_receipt_number,
-                        'recorded_by' => $transaction->tenant_id,
-                        'mpesa_transaction_id' => $transaction->id
-                    ]);
+                // Payment successful: keep core DB updates atomic and idempotent.
+                $payment = DB::transaction(function () use ($transaction, $stkCallback) {
+                    if (!$transaction->isSuccess()) {
+                        $transaction->markAsSuccess($stkCallback);
+                    }
 
-                    // Generate receipt automatically
+                    $payment = Payment::where('mpesa_transaction_id', $transaction->id)->first();
+                    if (!$payment) {
+                        $payment = Payment::create([
+                            'tenant_id' => $transaction->tenant_id,
+                            'unit_id' => $transaction->unit_id,
+                            'property_id' => $transaction->property_id,
+                            'amount' => $transaction->amount,
+                            'payment_date' => now(),
+                            'payment_method' => 'mpesa',
+                            'payment_type' => $transaction->payment_type,
+                            'notes' => 'M-Pesa payment - Receipt: ' . $transaction->mpesa_receipt_number,
+                            'recorded_by' => $transaction->tenant_id,
+                            'mpesa_transaction_id' => $transaction->id
+                        ]);
+                    }
+
+                    return $payment;
+                });
+
+                // Run non-critical side-effects outside DB transaction to avoid rolling back payment.
+                $receipt = null;
+                try {
                     $receipt = \App\Http\Controllers\ReceiptController::generateFromPayment($payment);
-                    
-                    // Send receipt via email if tenant has email
-                    if ($payment->tenant->email) {
-                        try {
-                            \Mail::to($payment->tenant->email)->send(new \App\Mail\ReceiptMail($receipt));
-                            $receipt->update(['status' => 'sent']);
-                        } catch (\Exception $e) {
-                            \Log::error('Failed to send receipt email after M-Pesa payment: ' . $e->getMessage());
-                        }
-                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to generate receipt after M-Pesa payment: ' . $e->getMessage(), [
+                        'transaction_id' => $transaction->id,
+                        'payment_id' => $payment->id,
+                    ]);
+                }
 
-                    // Send SMS payment confirmation
+                if ($receipt && $payment->tenant->email) {
                     try {
-                        $smsService = new SmsService();
-                        $assignment = $payment->tenant->tenantAssignments()
-                            ->where('unit_id', $payment->unit_id)
-                            ->with(['unit.property'])
-                            ->first();
-                        
-                        if ($assignment) {
-                            $smsService->sendPaymentConfirmation(
-                                $payment->tenant->phone_number,
-                                $payment->tenant->name,
-                                $payment->amount,
-                                $assignment->unit->property->name,
-                                $assignment->unit->unit_number,
-                                $receipt->receipt_number
-                            );
-                            
-                            \Log::info('Payment confirmation SMS sent', [
-                                'tenant_id' => $payment->tenant_id,
-                                'amount' => $payment->amount,
-                                'receipt' => $receipt->receipt_number
-                            ]);
-                        }
+                        \Mail::to($payment->tenant->email)->send(new \App\Mail\ReceiptMail($receipt));
+                        $receipt->update(['status' => 'sent']);
                     } catch (\Exception $e) {
-                        \Log::error('Failed to send payment confirmation SMS: ' . $e->getMessage());
+                        \Log::error('Failed to send receipt email after M-Pesa payment: ' . $e->getMessage());
                     }
+                }
 
-                    // Log the successful payment activity
+                try {
+                    $smsService = new SmsService();
+                    $assignment = $payment->tenant->tenantAssignments()
+                        ->where('unit_id', $payment->unit_id)
+                        ->with(['unit.property'])
+                        ->first();
+
+                    if ($assignment) {
+                        $smsService->sendPaymentConfirmation(
+                            $payment->tenant->phone_number,
+                            $payment->tenant->name,
+                            $payment->amount,
+                            $assignment->unit->property->name,
+                            $assignment->unit->unit_number,
+                            $receipt?->receipt_number
+                        );
+
+                        \Log::info('Payment confirmation SMS sent', [
+                            'tenant_id' => $payment->tenant_id,
+                            'amount' => $payment->amount,
+                            'receipt' => $receipt?->receipt_number,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send payment confirmation SMS: ' . $e->getMessage());
+                }
+
+                try {
                     ActivityLog::logActivity(
                         $transaction->tenant_id,
                         'payment_completed',
-                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa. Receipt #' . $receipt->receipt_number . ' generated.',
+                        'Payment of KSh ' . number_format($transaction->amount) . ' completed successfully via M-Pesa.',
                         [
                             'payment_id' => $payment->id,
-                            'receipt_id' => $receipt->id,
-                            'receipt_number' => $receipt->receipt_number,
+                            'receipt_id' => $receipt?->id,
+                            'receipt_number' => $receipt?->receipt_number,
                             'amount' => $transaction->amount,
                             'method' => 'mpesa',
                             'receipt' => $transaction->mpesa_receipt_number,
@@ -221,9 +233,17 @@ class MpesaController extends Controller
                         'fas fa-check-circle',
                         'green'
                     );
-                });
+                } catch (\Exception $e) {
+                    \Log::error('Failed to log payment activity: ' . $e->getMessage(), [
+                        'transaction_id' => $transaction->id,
+                        'payment_id' => $payment->id,
+                    ]);
+                }
 
-                Log::info('Payment processed successfully for transaction: ' . $transaction->id);
+                Log::info('Payment processed successfully for transaction: ' . $transaction->id, [
+                    'payment_id' => $payment->id,
+                    'receipt_id' => $receipt?->id,
+                ]);
             } else {
                 // Payment failed
                 $transaction->markAsFailed($stkCallback);
@@ -325,6 +345,51 @@ class MpesaController extends Controller
                     'success' => false,
                     'message' => 'Transaction not found'
                 ], 404);
+            }
+
+            // Fallback reconciliation: if callback hasn't updated the DB yet,
+            // query Safaricom directly and finalize the transaction.
+            if ($transaction->isPending()) {
+                try {
+                    $queryResponse = $this->mpesaService->stkQuery($transaction->checkout_request_id);
+
+                    if (isset($queryResponse['ResultCode'])) {
+                        if ((int) $queryResponse['ResultCode'] === 0) {
+                            $transaction = DB::transaction(function () use ($transaction, $queryResponse) {
+                                if ($transaction->isPending()) {
+                                    $transaction->markAsSuccess($queryResponse);
+
+                                    Payment::firstOrCreate(
+                                        ['mpesa_transaction_id' => $transaction->id],
+                                        [
+                                            'tenant_id' => $transaction->tenant_id,
+                                            'unit_id' => $transaction->unit_id,
+                                            'property_id' => $transaction->property_id,
+                                            'amount' => $transaction->amount,
+                                            'payment_date' => now(),
+                                            'payment_method' => 'mpesa',
+                                            'payment_type' => $transaction->payment_type,
+                                            'notes' => 'M-Pesa payment (STK Query reconciliation)',
+                                            'recorded_by' => $transaction->tenant_id,
+                                        ]
+                                    );
+                                }
+
+                                return $transaction->fresh();
+                            });
+                        } elseif (in_array((string) $queryResponse['ResultCode'], ['1', '1032', '1037'], true)) {
+                            if ($transaction->isPending()) {
+                                $transaction->markAsFailed($queryResponse);
+                                $transaction = $transaction->fresh();
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('STK Query reconciliation failed: ' . $e->getMessage(), [
+                        'checkout_request_id' => $transaction->checkout_request_id,
+                        'transaction_id' => $transaction->id,
+                    ]);
+                }
             }
 
             return response()->json([

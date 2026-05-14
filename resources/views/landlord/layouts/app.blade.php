@@ -11,6 +11,7 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -58,6 +59,33 @@
     @stack('styles')
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+
+    <!-- Mobile header -->
+    <div class="md:hidden w-full bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-9 h-9 object-cover rounded-full shadow-md">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">Landlord Panel</h2>
+                <p class="text-xs text-gray-500">Rental Management</p>
+            </div>
+        </div>
+        <button id="mobile-sidebar-button" type="button" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <div id="mobile-sidebar" class="md:hidden hidden bg-white border-b border-gray-200 px-4 py-4">
+        <nav class="space-y-2">
+            <a href="{{ route('landlord.dashboard') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
+            <a href="{{ route('landlord.properties.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Properties</a>
+            <a href="{{ route('landlord.tenants.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Tenants</a>
+            <a href="{{ route('landlord.maintenance.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Maintenance</a>
+            <a href="{{ route('landlord.messages.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Messages</a>
+            <a href="{{ route('landlord.payments.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Payments</a>
+            <a href="{{ route('receipts.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Receipts</a>
+            <a href="{{ route('landlord.profile.edit') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Profile</a>
+            <a href="{{ route('landlord.settings') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Settings</a>
+        </nav>
+    </div>
 
     <div class="flex">
         <!-- Sidebar -->
@@ -163,19 +191,16 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Toggle mobile menu
         document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu toggle
-            const mobileMenuButton = document.querySelector('button[aria-controls="mobile-menu"]');
-            const mobileMenu = document.getElementById('mobile-menu');
-            
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
+            const mobileSidebarButton = document.getElementById('mobile-sidebar-button');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+
+            if (mobileSidebarButton && mobileSidebar) {
+                mobileSidebarButton.addEventListener('click', function() {
+                    mobileSidebar.classList.toggle('hidden');
                 });
             }
-            
-            // User dropdown toggle
+
             const userMenuButton = document.getElementById('user-menu');
             const userMenu = userMenuButton?.nextElementSibling;
             
@@ -184,7 +209,6 @@
                     userMenu.classList.toggle('hidden');
                 });
                 
-                // Close dropdown when clicking outside
                 document.addEventListener('click', function(event) {
                     if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
                         userMenu.classList.add('hidden');

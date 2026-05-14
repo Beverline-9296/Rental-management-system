@@ -10,6 +10,7 @@
     <title>@yield('title', 'Tenant Dashboard - Rental')</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
     <style>
         @keyframes fadeInUp {
@@ -35,9 +36,35 @@
     @stack('styles')
 </head>
 <body class="min-h-screen">
+    <div class="md:hidden w-full bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-9 h-9 object-cover rounded-full shadow-md">
+            <div>
+                <h2 class="text-base font-semibold text-gray-900">Rental</h2>
+                <p class="text-xs text-gray-500">Tenant Panel</p>
+            </div>
+        </div>
+        <button id="mobile-sidebar-button" type="button" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    <div id="mobile-sidebar" class="md:hidden hidden bg-white border-b border-gray-200 px-4 py-4">
+        <nav class="space-y-2">
+            <a href="{{ route('tenant.dashboard') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Dashboard</a>
+            <a href="{{ route('tenant.unit-details') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Unit Details</a>
+            <a href="{{ route('tenant.maintenance.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Maintenance</a>
+            <a href="{{ route('tenant.messages.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Messages</a>
+            <a href="{{ route('tenant.payments.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">My Payments Records</a>
+            <a href="{{ route('tenant.payments.make') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Make Payment</a>
+            <a href="{{ route('receipts.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">My Receipts</a>
+            <a href="{{ route('tenant.contact-landlord') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Contact Landlord</a>
+            <a href="{{ route('tenant.profile.edit') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Profile</a>
+            <a href="{{ route('tenant.settings') }}" class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Settings</a>
+        </nav>
+    </div>
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 gradient-bg text-white min-h-screen shadow-2xl">
+        <div class="hidden md:flex md:flex-shrink-0 w-64 gradient-bg text-white min-h-screen shadow-2xl">
             <div class="p-6">
                 <div class="flex items-center mb-8 space-x-2">
                     <img src="{{ asset('storage/properties/Screenshot 2025-08-22 070351.png') }}" alt="image" class="w-10 h-10 object-cover rounded-full shadow-md">
@@ -97,6 +124,17 @@
     @stack('scripts')
     
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileSidebarButton = document.getElementById('mobile-sidebar-button');
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+
+            if (mobileSidebarButton && mobileSidebar) {
+                mobileSidebarButton.addEventListener('click', function() {
+                    mobileSidebar.classList.toggle('hidden');
+                });
+            }
+        });
+
         // Sync localStorage theme with database theme on page load
         document.addEventListener('DOMContentLoaded', function() {
             const htmlRoot = document.getElementById('html-root');

@@ -383,7 +383,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function startStatusCheck(checkoutRequestId, transactionId) {
         let attempts = 0;
-        const maxAttempts = 18; // 3 minutes (18 * 10 seconds)
+        const checkIntervalMs = 3000; // check every 3 seconds for faster updates
+        const maxAttempts = 40; // ~2 minutes total
         
         const checkStatus = () => {
             if (attempts >= maxAttempts) {
@@ -418,21 +419,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Still pending, check again
                     attempts++;
                     updateProgress((attempts / maxAttempts) * 100);
-                    setTimeout(checkStatus, 10000); // Check every 10 seconds
+                    setTimeout(checkStatus, checkIntervalMs);
                 }
             })
             .catch(error => {
                 console.error('Status check error:', error);
                 attempts++;
                 if (attempts < maxAttempts) {
-                    setTimeout(checkStatus, 10000);
+                    setTimeout(checkStatus, checkIntervalMs);
                 } else {
                     updatePaymentModal('error');
                 }
             });
         };
         
-        setTimeout(checkStatus, 5000); // Start checking after 5 seconds
+        setTimeout(checkStatus, 2000); // Start checking after 2 seconds
     }
 
     function setLoading(loading) {
@@ -508,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'success':
                 modalIcon.innerHTML = '<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-check-circle text-green-600 text-2xl"></i></div>';
                 modalTitle.textContent = 'Payment Successful!';
-                modalMessage.textContent = `Your payment of KES ${data.amount} has been processed successfully. Receipt: ${data.receipt_number}`;
+                modalMessage.textContent = `Your payment of KES ${data.amount} has been processed successfully. Receipt: ${data.mpesa_receipt_number || 'Generated'}`;
                 modalButtons.innerHTML = `
                     <button onclick="window.location.href='{{ route('tenant.payments.index') }}'" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                         View Payments

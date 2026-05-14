@@ -105,5 +105,41 @@
    php artisan serve
    ```
 
+9. **Create an admin user (via Tinker)**
+   
+   In this project, “admin privileges” are granted to users where `role = 'landlord'` (see `User::isAdmin()` in `app/Models/User.php`).
+
+   ```bash
+   php artisan tinker
+   ```
+
+   Create a new admin user:
+   ```php
+   use App\Models\User;
+   use Illuminate\Support\Facades\Hash;
+
+   $admin = User::create([
+       'name' => 'Admin User',
+       'email' => 'admin@example.com',
+       'password' => Hash::make('ChangeMe123!'),
+       'role' => 'landlord',
+       'is_verified' => true,
+   ]);
+
+   $admin->isAdmin(); // should return true
+   ```
+
+   Or convert an existing user to admin:
+   ```php
+   use App\Models\User;
+
+   $user = User::where('email', 'someone@example.com')->first();
+   $user->role = 'landlord';
+   $user->is_verified = true;
+   $user->save();
+
+   $user->isAdmin(); // should return true
+   ```
+
 
 

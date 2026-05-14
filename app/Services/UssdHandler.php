@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Payment;
+use App\Models\MpesaTransaction;
 use App\Models\TenantAssignment;
 use App\Http\Controllers\MpesaController;
 use Illuminate\Http\Request;
@@ -154,27 +155,54 @@ class UssdHandler
     private function handleLastPaymentMenu($menuPath)
     {
         if (count($menuPath) == 1) {
-            // Show last payment details
+            // Last recorded payment entry
             $lastPayment = $this->user->payments()
                 ->where('payment_type', 'rent')
                 ->orderByDesc('payment_date')
+                ->orderByDesc('created_at')
+                ->with('mpesaTransaction')
                 ->first();
 
-            if (!$lastPayment) {
+            // Last M-Pesa transaction attempt (even if still pending/failed)
+            $lastMpesaTransaction = MpesaTransaction::where('tenant_id', $this->user->id)
+                ->where('payment_type', 'rent')
+                ->orderByDesc('created_at')
+                ->first();
+
+            if (!$lastPayment && !$lastMpesaTransaction) {
                 return "END No payment records found.";
             }
 
+            $paymentTime = $lastPayment
+                ? ($lastPayment->payment_date ?? $lastPayment->created_at)
+                : null;
+            $mpesaTime = $lastMpesaTransaction?->created_at;
+
+            // Choose the newest truthful event between posted payments and M-Pesa attempts.
+            $showMpesaAttempt = $lastMpesaTransaction && (!$paymentTime || $mpesaTime->greaterThan($paymentTime));
+
             $response = "END LAST PAYMENT\n";
-            $response .= "Date: " . $lastPayment->payment_date->format('M d, Y') . "\n";
-            $response .= "Amount: KES " . number_format($lastPayment->amount) . "\n";
-            $response .= "Method: " . ucfirst($lastPayment->payment_method) . "\n";
-            $response .= "Type: " . ucfirst($lastPayment->payment_type) . "\n";
-            if ($lastPayment->mpesaTransaction) {
-                $response .= "Reference: " . $lastPayment->mpesaTransaction->mpesa_receipt_number . "\n";
-                $response .= "Status: " . ucfirst($lastPayment->mpesaTransaction->status);
+
+            if ($showMpesaAttempt) {
+                $response .= "Date: " . $lastMpesaTransaction->created_at->format('M d, Y') . "\n";
+                $response .= "Amount: KES " . number_format($lastMpesaTransaction->amount) . "\n";
+                $response .= "Method: Mpesa\n";
+                $response .= "Type: " . ucfirst($lastMpesaTransaction->payment_type ?? 'rent') . "\n";
+                $response .= "Reference: " . ($lastMpesaTransaction->mpesa_receipt_number ?: 'STK Pending') . "\n";
+                $response .= "Status: " . ucfirst($lastMpesaTransaction->status);
             } else {
-                $response .= "Reference: Manual Payment\n";
-                $response .= "Status: Completed";
+                $response .= "Date: " . $paymentTime->format('M d, Y') . "\n";
+                $response .= "Amount: KES " . number_format($lastPayment->amount) . "\n";
+                $response .= "Method: " . ucfirst($lastPayment->payment_method) . "\n";
+                $response .= "Type: " . ucfirst($lastPayment->payment_type) . "\n";
+
+                if ($lastPayment->mpesaTransaction) {
+                    $response .= "Reference: " . ($lastPayment->mpesaTransaction->mpesa_receipt_number ?: 'M-Pesa') . "\n";
+                    $response .= "Status: " . ucfirst($lastPayment->mpesaTransaction->status);
+                } else {
+                    $response .= "Reference: Manual Payment\n";
+                    $response .= "Status: Completed";
+                }
             }
 
             return $response;
